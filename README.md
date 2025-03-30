@@ -1,4 +1,5 @@
 # 🛰️ Instalador de Asterisk 1.8.13.0 para CentOS 7
+## AUTOMATIZADO
 
 Este script instala Asterisk 1.8.13.0 en **CentOS 7** de forma automatizada, incluyendo todas las dependencias, librerías, configuración de repositorios y desactivación de SELinux.
 
@@ -48,11 +49,17 @@ Si da error de socket, usa:
 asterisk start && asterisk -r
 ```
 
-☕ ¿Te fue útil?
+#☕ ¿Te fue útil?
 Bríndame un café vía PayPal si este proyecto te ayudó:
 👉 https://www.paypal.me/felixBlancoC
 
-🧑‍🔧 Autor
+#🧑‍🔧 Autor
 Félix José Blanco Cabrera
 Estudiante de Ingeniería, UTESA
 Santiago, República Dominicana
+
+#HONORABLE MENTIONS:
+##(El equipo Nautilius)
+##Nathaly Berroa : https://github.com/nmbf02
+##Edwin Espinal : https://github.com/Edwinesp19
+
