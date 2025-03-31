@@ -54,7 +54,9 @@ Bríndame un café vía PayPal si este proyecto te ayudó:
 👉 https://www.paypal.me/felixBlancoC
 
 #🧑‍🔧 Autores (El equipo Nautilius)
+```
 Félix José Blanco Cabrera
 Nathaly Berroa : https://github.com/nmbf02
 Edwin Espinal : https://github.com/Edwinesp19
+```
 
