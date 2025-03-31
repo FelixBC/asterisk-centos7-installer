@@ -65,7 +65,7 @@ NATALIUS.sh es un script de Bash para instalar y configurar Asterisk 1.8.13.0 en
 ☕ ¿Te fue útil?
 🎯 ¿Para quién es esto?
 
-Este proyecto es ideal para estudiantes, desarrolladores y administradores de sistemas que necesiten implantar Asterisk 1.8 rápidamente en CentOS 7. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh es para ti.
+Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBERTY TINEO), tarea proyecto final, desarrolladores y administradores de sistemas que necesiten implantar Asterisk 1.8 rápidamente en CentOS 7. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh es para ti.
 
 # ▶️ Cómo usarlo
 
