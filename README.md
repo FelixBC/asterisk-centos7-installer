@@ -49,11 +49,11 @@ Si da error de socket, usa:
 asterisk start && asterisk -r
 ```
 
-#☕ ¿Te fue útil?
+### ☕ ¿Te fue útil?
 Bríndame un café vía PayPal si este proyecto te ayudó:
 👉 https://www.paypal.me/felixBlancoC
 
-#🧑‍🔧 Autores (El equipo Nautilius)
+### 🧑‍🔧 Autores (El equipo Nautilius)
 ```
 Félix José Blanco Cabrera
 Nathaly Berroa : https://github.com/nmbf02
