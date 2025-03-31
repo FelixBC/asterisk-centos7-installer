@@ -136,8 +136,14 @@ for d in asterisk-core-sounds-es-gsm*; do
 done
 
 # ---------------------------------------------------------------------
-# Paso 8: Integrar scripts AGI para el juego y reconocimiento de voz
+# Paso 7.1: Verificar e instalar mysql-connector-python (para scripts AGI)
+if ! python3 -c "import mysql.connector" &>/dev/null; then
+    echo "🔧 Instalando mysql-connector-python..."
+    pip3 install mysql-connector-python
+fi
 
+# ---------------------------------------------------------------------
+# Paso 8: Integrar scripts AGI para el juego y reconocimiento de voz
 echo "🔧 Integrando scripts AGI..."
 
 # Crear directorio AGI si no existe
