@@ -135,7 +135,6 @@ for d in asterisk-core-sounds-es-gsm*; do
     fi
 done
 
-
 # ---------------------------------------------------------------------
 # Paso 7.0: Verificar e instalar pip3 (para usar mysql-connector-python)
 if ! command -v pip3 &> /dev/null; then
@@ -148,6 +147,8 @@ fi
 if ! python3 -c "import mysql.connector" &>/dev/null; then
     echo "🔧 Instalando mysql-connector-python..."
     pip3 install mysql-connector-python
+else
+    echo "🔄 mysql-connector-python ya está instalado. Saltando instalación."
 fi
 
 # ---------------------------------------------------------------------
