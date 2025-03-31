@@ -49,17 +49,14 @@ Si da error de socket, usa:
 asterisk start && asterisk -r
 ```
 
-#☕ ¿Te fue útil?
+### ☕ ¿Te fue útil?
 Bríndame un café vía PayPal si este proyecto te ayudó:
 👉 https://www.paypal.me/felixBlancoC
 
-#🧑‍🔧 Autor
+### 🧑‍🔧 Autores (El equipo Nautilius)
+```
 Félix José Blanco Cabrera
-Estudiante de Ingeniería, UTESA
-Santiago, República Dominicana
-
-#HONORABLE MENTIONS:
-##(El equipo Nautilius)
-##Nathaly Berroa : https://github.com/nmbf02
-##Edwin Espinal : https://github.com/Edwinesp19
+Nathaly Berroa : https://github.com/nmbf02
+Edwin Espinal : https://github.com/Edwinesp19
+```
 
