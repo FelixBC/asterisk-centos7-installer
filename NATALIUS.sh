@@ -135,6 +135,14 @@ for d in asterisk-core-sounds-es-gsm*; do
     fi
 done
 
+
+# ---------------------------------------------------------------------
+# Paso 7.0: Verificar e instalar pip3 (para usar mysql-connector-python)
+if ! command -v pip3 &> /dev/null; then
+    echo "🔧 Instalando pip3..."
+    yum install -y python3-pip
+fi
+
 # ---------------------------------------------------------------------
 # Paso 7.1: Verificar e instalar mysql-connector-python (para scripts AGI)
 if ! python3 -c "import mysql.connector" &>/dev/null; then
