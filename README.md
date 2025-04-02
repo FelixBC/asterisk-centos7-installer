@@ -99,20 +99,48 @@ asterisk start
 asterisk -r
 ```
 # Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
-📋 ¿Qué hace el script?
+## 📋 ¿Qué hace el script?
 
-NATALIUS.sh realiza automáticamente las siguientes acciones (de manera idempotente, es decir, sin repetir pasos que ya se hayan ejecutado):
-Instalación de dependencias: Instala todos los paquetes y herramientas necesarios (compiladores, librerías, MariaDB, etc.) usando yum, asegurando que estén presentes antes de compilar Asterisk.
-Configuración de SELinux y repositorios: Deshabilita SELinux (previa copia de respaldo del archivo de configuración) para evitar conflictos con Asterisk, y actualiza los repositorios YUM de CentOS 7 para usar los mirrors de Vault (necesario porque CentOS 7 usa ahora vault.centos.org).
+`NATALIUS.sh` automatiza todo el proceso de instalación y configuración de **Asterisk 1.8.13.0** en **CentOS 7** de forma **idempotente** (es decir, puedes ejecutarlo varias veces sin dañar configuraciones previas ni repetir pasos innecesarios).
 
-Instalación de Asterisk 1.8.13.0: Descarga el código fuente de Asterisk 1.8.13.0, lo compila e instala solo si no está ya instalado en el sistema.
-Librerías adicionales: Verifica la presencia de la librería Jansson (necesaria para funcionalidades JSON en Asterisk) y del conector de base de datos MySQL (paquete mysql-connector-python); si no se encuentran, los instala automáticamente.
-Base de datos MySQL (MariaDB): Inicia el servicio de MariaDB y configura la base de datos ivrdb con las tablas requeridas (premios, llamadas y voice) solo si no existen. Además, inserta datos de ejemplo en la tabla premios (10 premios distintos) la primera vez, para soportar el juego de adivinanza.
+---
 
-Sonidos en español: Descarga el paquete oficial de sonidos en español para Asterisk (formato GSM) y los instala en el directorio de sonidos de Asterisk, de modo que las locuciones del sistema (correo de voz, menús) estén en español.
-Scripts AGI integrados: Copia/crea los scripts AGI juego.py (juego de adivinar números) y voz.py (simulación de reconocimiento de voz) en el directorio de Asterisk (/var/lib/asterisk/agi-bin/), asignándoles permisos de ejecución. Estos scripts permiten la funcionalidad extra del IVR interactivo.
+### ✅ Funcionalidades del script:
 
-Actualización del dialplan: Agrega de forma segura los contextos y extensiones necesarios al archivo extensions.conf de Asterisk. En concreto, añade los contextos [juego] y [reconocimiento] (cada uno invocando su respectivo script AGI) y crea una extensión de marcación directa (700) para acceder al IVR principal. Todo esto se hace comprobando antes que no existan dichas entradas y realizando un backup del archivo original, garantizando no sobrescribir configuraciones existentes.
+#### ⚙️ Instalación de dependencias
+- Instala compiladores, librerías de desarrollo, MariaDB y más usando `yum`.
+
+#### 🔐 SELinux y repositorios
+- Desactiva SELinux (haciendo backup del archivo `config`).
+- Actualiza los repositorios para usar los mirrors de `vault.centos.org`.
+
+#### 📦 Instalación de Asterisk 1.8.13.0
+- Descarga, compila e instala Asterisk **solo si no está instalado**.
+
+#### 🧩 Librerías adicionales
+- Verifica e instala **jansson** (para soporte JSON).
+- Verifica e instala **mysql-connector-python** si no existe (usado por los scripts AGI).
+
+#### 🛠️ Base de datos MariaDB
+- Crea la base de datos `ivrdb` con las tablas:
+  - `premios` 🏆  
+  - `llamadas` 📞  
+  - `voice` 🗣️
+- Inserta automáticamente **10 premios** si la tabla `premios` está vacía.
+
+#### 🔊 Sonidos en español para Asterisk
+- Descarga e instala los sonidos en formato `.gsm` (incluye locuciones del sistema en español).
+
+#### 🤖 Integración de scripts AGI
+- Copia `juego.py` (juego de adivinar un número).
+- Copia `voz.py` (simulación de reconocimiento de voz).
+- Ambos se colocan en `/var/lib/asterisk/agi-bin/` con permisos de ejecución.
+
+#### 📞 Actualización del dialplan (`extensions.conf`)
+- Agrega los contextos `[juego]` y `[reconocimiento]`.
+- Añade la extensión `700` para acceso directo al IVR.
+- Verifica duplicados antes de escribir y hace un **backup del archivo original**.
+
 
 
 # Proximas actualizaciones:
