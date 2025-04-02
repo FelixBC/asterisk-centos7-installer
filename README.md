@@ -22,8 +22,7 @@ Haz clic derecho en el escritorio → “Open Terminal”.
 ```bash
 wget https://raw.githubusercontent.com/felixBlanco/asterisk-centos7-installer/main/install_asterisk.sh -O install_asterisk.sh
 ```
-3. Dale permisos de ejecución
-4. 
+3. Dale permisos de ejecución 
 ```bash
 chmod +x install_asterisk.sh
 ```
