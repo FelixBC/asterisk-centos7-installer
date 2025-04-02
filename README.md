@@ -116,6 +116,16 @@ Scripts AGI integrados: Copia/crea los scripts AGI juego.py (juego de adivinar n
 Actualización del dialplan: Agrega de forma segura los contextos y extensiones necesarios al archivo extensions.conf de Asterisk. En concreto, añade los contextos [juego] y [reconocimiento] (cada uno invocando su respectivo script AGI) y crea una extensión de marcación directa (700) para acceder al IVR principal. Todo esto se hace comprobando antes que no existan dichas entradas y realizando un backup del archivo original, garantizando no sobrescribir configuraciones existentes.
 
 
+# Proximas actualizaciones:
+```
+- Usar las voces de eleven labs api para autogenerar voces random.
+- El script debe poner la voz de nathaly berroa al final despidiendose.
+- Debe tener una opcion que lo autoelimine sin dejar rastro de el mismo.
+- Debe tener documentacion mantenible, y puntual para que cualquiera pueda cambiar ciertos aspectos en caso que cambie la asignacion o sus necesidades especificas.
+- Deberia hacer un hall of fame agradeciendo a los colaboardores en github. Con su nombre de github en la ejecucion del script.
+
+```
+
 # ☕ ¿Te fue útil?
 ¡Esperamos que este instalador te haya sido de gran ayuda! Si NATALIUS.sh te ahorró tiempo o te sacó de apuros, invítanos un café ☕ haciendo una donación en PayPal. Cualquier aporte es bienvenido y nos motiva a seguir creando herramientas open source. ¡Gracias por tu apoyo! 👉 https://www.paypal.me/felixBlancoC
 
