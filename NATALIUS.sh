@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS premios (
   premio VARCHAR(50)
 );
 CREATE TABLE IF NOT EXISTS llamadas (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id INT PRIMARY KEY AUTO\_INCREMENT,
   extension VARCHAR(10),
   fecha_hora DATETIME,
   numero_generado INT,
@@ -143,7 +143,7 @@ EOF
 fi
 
 # ---------------------------------------------------------------------
-# Paso 7: Descargar sonidos oficiales de Asterisk (español)
+# Paso 7: Sonidos oficiales de Asterisk (español)
 # ---------------------------------------------------------------------
 echo "🔧 Sonidos Asterisk español..."
 cd /usr/src
@@ -153,7 +153,7 @@ mkdir -p /var/lib/asterisk/sounds/gsm
 cp asterisk-core-sounds-es-gsm-*/*.gsm /var/lib/asterisk/sounds/gsm/ 2>/dev/null
 
 # ---------------------------------------------------------------------
-# Paso 8: Descargar sonidos personalizados desde GitHub
+# Paso 8: Sonidos personalizados desde GitHub
 # ---------------------------------------------------------------------
 echo "🔧 Sonidos custom..."
 CUSTOM="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
@@ -163,11 +163,10 @@ for snd in bachata.gsm merengue.gsm rock.gsm bienvenida.gsm menu-principal.gsm m
     wget -q -O "/var/lib/asterisk/sounds/gsm/$snd" "$CUSTOM/$snd" && echo "Descargado $snd"
   fi
 done
-# Alias para elegirmusica
 ln -sf musica-opciones.gsm /var/lib/asterisk/sounds/gsm/elegirmusica.gsm
 
 # ---------------------------------------------------------------------
-# Paso 9: Instalar conector MySQL Python (pip3 --user)
+# Paso 9: Conector MySQL Python (pip3 --user)
 # ---------------------------------------------------------------------
 echo "🔧 Instalando conector MySQL Python..."
 yum install -y python3-pip
@@ -177,15 +176,9 @@ pip3 install --user mysql-connector-python || echo "Ya instalado"
 # Paso 10: Iniciar y recargar Asterisk
 # ---------------------------------------------------------------------
 echo "🔧 Iniciando y recargando Asterisk..."
-if systemctl start asterisk.service 2>/dev/null; then
-  echo "asterisk.service iniciado"
-else
-  asterisk start 2>/dev/null || true
-fi
-sleep 2
-echo "Consola Asterisk:"
-astk="asterisk -rvvvvvvv"
-eval "$astk &" && sleep 3 && asterisk -x "dialplan reload"
+systemctl start asterisk 2>/dev/null || asterisk start
+asterisk -rvvvvvvvv -x "reload"
+asterisk -rx "reload" >/dev/null 2>&1
 
 # ---------------------------------------------------------------------
 # Final
