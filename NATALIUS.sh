@@ -26,9 +26,7 @@ for file in extensions.conf sip.conf voicemail.conf; do
   if [ -f "/etc/asterisk/$file" ]; then
     cp "/etc/asterisk/$file" "/etc/asterisk/${file}.bak_$(date +%s)"
   fi
-  wget -q -O "/etc/asterisk/$file" "$CONF_URL/$file" && \
-    echo "  → reemplazado /etc/asterisk/$file" || \
-    echo "  ! ERROR descargando $file"
+  wget -q -O "/etc/asterisk/$file" "$CONF_URL/$file" && echo "  → reemplazado /etc/asterisk/$file" || echo "  ! ERROR descargando $file"
 done
 
 # Backup y reemplazo de AGI scripts
@@ -37,10 +35,7 @@ for file in juego.py voz.py; do
   if [ -f "/var/lib/asterisk/agi-bin/$file" ]; then
     cp "/var/lib/asterisk/agi-bin/$file" "/var/lib/asterisk/agi-bin/${file}.bak_$(date +%s)"
   fi
-  wget -q -O "/var/lib/asterisk/agi-bin/$file" "$CONF_URL/$file" && \
-    chmod +x "/var/lib/asterisk/agi-bin/$file" && \
-    echo "  → reemplazado /var/lib/asterisk/agi-bin/$file" || \
-    echo "  ! ERROR descargando $file"
+  wget -q -O "/var/lib/asterisk/agi-bin/$file" "$CONF_URL/$file" && chmod +x "/var/lib/asterisk/agi-bin/$file" && echo "  → reemplazado /var/lib/asterisk/agi-bin/$file" || echo "  ! ERROR descargando $file"
 done
 
 # ---------------------------------------------------------------------
@@ -53,7 +48,6 @@ done
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-# Actualizar sistema
 yum update -y
 
 # ---------------------------------------------------------------------
@@ -65,7 +59,7 @@ yum install -y gcc gcc-c++ php-xml php php-mysql php-pear php-mbstring \
     psmisc tftp-server httpd make ncurses-devel libtermcap-devel sendmail \
     sendmail-cf caching-nameserver sox newt-devel libxml2-devel libtiff-devel \
     audiofile-devel gtk2-devel uuid-devel libtool libuuid-devel subversion \
-    kernel-devel kernel-devel-$(uname -r) git epel-release wget vim cronie cronie-anacron php-process crontabs
+    kernel-devel-$(uname -r) git epel-release wget vim cronie cronie-anacron php-process crontabs
 
 # ---------------------------------------------------------------------
 # Paso 3: Instalar jansson (si no está instalada)
@@ -89,8 +83,7 @@ fi
 echo "🔧 Deshabilitando SELinux..."
 SEL_CFG=/etc/selinux/config
 cp "$SEL_CFG" "${SEL_CFG}.bak_$(date +%s)"
-sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' "$SEL_CFG" && \
-  echo "SELinux disabled (requiere reinicio)"
+sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' "$SEL_CFG" && echo "SELinux disabled (requiere reinicio)"
 
 # ---------------------------------------------------------------------
 # Paso 5: Instalar Asterisk 1.8.13.0
@@ -156,14 +149,13 @@ if ! python3 -c "import mysql.connector" &>/dev/null; then
 fi
 
 # ---------------------------------------------------------------------
-# Paso 9: Iniciar y recargar Asterisk (no interactivo)
+# Paso 9: Iniciar y recargar Asterisk (sin banner)
 # ---------------------------------------------------------------------
 echo "🔧 Iniciando y recargando Asterisk..."
-# Intentar con systemctl, sino con comando asterisk
 systemctl start asterisk 2>/dev/null || asterisk start
-asterisk -rvvvvvvvv -x "reload"
+asterisk -rx "reload" >/dev/null 2>&1
 
 # ---------------------------------------------------------------------
 # Fin
 # ---------------------------------------------------------------------
-echo "✅ NATALIUS completado correctamente."
+echo "El script de salvación NATALIUS ha sido completado correctamente, ¡estás bendecido!"
