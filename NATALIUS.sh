@@ -26,9 +26,9 @@ for file in extensions.conf sip.conf voicemail.conf; do
   if [ -f "/etc/asterisk/$file" ]; then
     cp "/etc/asterisk/$file" "/etc/asterisk/${file}.bak_$(date +%s)"
   fi
-  wget -q -O "/etc/asterisk/$file" "$CONF_URL/$file" \
-    && echo "  → reemplazado /etc/asterisk/$file" \
-    || echo "  ! ERROR descargando $file"
+  wget -q -O "/etc/asterisk/$file" "$CONF_URL/$file" && \
+    echo "  → reemplazado /etc/asterisk/$file" || \
+    echo "  ! ERROR descargando $file"
 done
 
 # Backup y reemplazo de AGI scripts
@@ -37,10 +37,10 @@ for file in juego.py voz.py; do
   if [ -f "/var/lib/asterisk/agi-bin/$file" ]; then
     cp "/var/lib/asterisk/agi-bin/$file" "/var/lib/asterisk/agi-bin/${file}.bak_$(date +%s)"
   fi
-  wget -q -O "/var/lib/asterisk/agi-bin/$file" "$CONF_URL/$file" \
-    && chmod +x "/var/lib/asterisk/agi-bin/$file" \
-    && echo "  → reemplazado /var/lib/asterisk/agi-bin/$file" \
-    || echo "  ! ERROR descargando $file"
+  wget -q -O "/var/lib/asterisk/agi-bin/$file" "$CONF_URL/$file" && \
+    chmod +x "/var/lib/asterisk/agi-bin/$file" && \
+    echo "  → reemplazado /var/lib/asterisk/agi-bin/$file" || \
+    echo "  ! ERROR descargando $file"
 done
 
 # ---------------------------------------------------------------------
@@ -52,7 +52,9 @@ for repo in /etc/yum.repos.d/CentOS-*; do
 done
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-ym update -y
+
+# Actualizar sistema
+yum update -y
 
 # ---------------------------------------------------------------------
 # Paso 2: Instalar paquetes y dependencias necesarias
@@ -127,7 +129,9 @@ fi
 # Paso 7: Sonidos oficiales y personalizados
 # ---------------------------------------------------------------------
 echo "🔧 Sonidos Asterisk español..."
-cd /usr/src; wget -N http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-es-gsm-current.tar.gz
+cd /usr/src
+wget -N http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-es-gsm-current.tar.gz
+mkdir -p /var/lib/asterisk/sounds/es
 tar -xvzf asterisk-core-sounds-es-gsm-current.tar.gz -C /var/lib/asterisk/sounds/es --strip-components=1
 
 echo "🔧 Sonidos custom..."
@@ -155,7 +159,8 @@ fi
 # Paso 9: Iniciar y recargar Asterisk (no interactivo)
 # ---------------------------------------------------------------------
 echo "🔧 Iniciando y recargando Asterisk..."
-systemctl start asterisk || asterisk start
+# Intentar con systemctl, sino con comando asterisk
+systemctl start asterisk 2>/dev/null || asterisk start
 asterisk -rvvvvvvvv -x "reload"
 
 # ---------------------------------------------------------------------
