@@ -47,15 +47,13 @@ for file in juego.py voz.py; do
 done
 
 # ---------------------------------------------------------------------
-# Paso 1: Configurar repos y actualizar
+# Paso 1: Configurar repositorios de CentOS
 # ---------------------------------------------------------------------
 echo "🔧 Configurando repositorios de CentOS..."
-for repo in /etc/yum.repos.d/CentOS-*; do
-    cp "$repo" "${repo}.bak_$(date +%s)"
-done
-sed -i 's/mirrorlist/#mirrorlist/g; s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-yum -q -y update
+# Actualizar los archivos de repositorio para usar vault.centos.org
+sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-*.repo
+sed -i 's|^#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
 
 # ---------------------------------------------------------------------
 # Paso 2: Instalar paquetes mínimos
