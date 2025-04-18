@@ -169,8 +169,8 @@ SQL
 if [ "$(mysql -u root -D ivrdb -N -e "SELECT COUNT(*) FROM premios;")" -eq 0 ]; then
   mysql -u root -D ivrdb <<SQL
 INSERT INTO premios (premio) VALUES
-('Lavadora'),('Smart TV'),('Air Fryer'),('Laptop'),('Celular'),
-('Tablet'),('Audífonos'),('Bocina Bluetooth'),('Reloj Inteligente'),('Bonificación');
+('lavadora'),('smart-tv'),('airfryer'),('laptop'),('celular'),
+('tablet'),('audifonos'),('bocina-bluetooth'),('reloj-inteligente'),('bonificacion');
 SQL
   echo "  → Tabla premios poblada"
 fi
