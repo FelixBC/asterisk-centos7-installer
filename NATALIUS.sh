@@ -50,8 +50,6 @@ done
 # Paso 1: Configurar repositorios de CentOS
 # ---------------------------------------------------------------------
 echo "🔧 Configurando repositorios de CentOS..."
-
-# Actualizar los archivos de repositorio para usar vault.centos.org
 sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-*.repo
 sed -i 's|^#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
 
@@ -91,7 +89,6 @@ echo "🔧 Deshabilitando SELinux y firewall..."
 SEL_CFG=/etc/selinux/config
 cp "$SEL_CFG" "${SEL_CFG}.bak_$(date +%s)"
 sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' "$SEL_CFG" && echo "  → SELinux disabled (requiere reinicio)"
-# Apagar y deshabilitar firewalld
 if systemctl is-active --quiet firewalld; then
   systemctl stop firewalld
   systemctl disable firewalld
@@ -153,9 +150,9 @@ SQL
 fi
 
 # ---------------------------------------------------------------------
-# Paso 7: Sonidos custom (nuevos nombres)
+# Paso 7: Sonidos custom actualizados
 # ---------------------------------------------------------------------
-echo "🔧 Sonidos custom..."
+echo "🔧 Descargando sonidos personalizados..."
 GSM_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
 DEST="/var/lib/asterisk/sounds"
 mkdir -p "$DEST"
@@ -165,19 +162,16 @@ GSM_FILES=(
   airfryer.gsm celular.gsm gracias-2.gsm lo-sentimos.gsm reloj-inteligente.gsm
   audifonos.gsm diga-palabra.gsm gracias.gsm menu-principal.gsm smart-tv.gsm
   bienvenida.gsm elegir-musica.gsm introduzca-numero.gsm no-disp.gsm tablet.gsm
-  bienvenida-juego.gsm elige-numero.gsm juego-bienvenida.gsm nuevo-chance.gsm timeout-es.gsm
+  bienvenida-juego.gsm elige-numero.gsm juego-bienvenida.gsm chance-extra.gsm timeout-es.gsm
   bocina-bluetooth.gsm ganador.gsm laptop.gsm numero-marcado.gsm tuvoz.gsm
+  bachata.gsm merengue.gsm rock.gsm
 )
 
 for f in "${GSM_FILES[@]}"; do
-  if [[ -f "$DEST/$f" ]]; then
-    echo "  🔄 $f ya existe"
+  if wget -q -O "$DEST/$f" "$GSM_URL/$f"; then
+    echo "  ✅ Descargado $f"
   else
-    if wget -q -P "$DEST" "$GSM_URL/$f"; then
-      echo "  ✅ Descargado $f"
-    else
-      echo "  ❗ ERROR descargando $f"
-    fi
+    echo "  ❗ ERROR descargando $f"
   fi
 done
 
@@ -203,7 +197,6 @@ asterisk -rx "reload" &>/dev/null
 # ---------------------------------------------------------------------
 # Fin
 # ---------------------------------------------------------------------
-
 echo "***********************************************"
 echo "  HA FINALIZADO NATALIUS"
 echo "  Script de salvación creado por los ingenieros:"
