@@ -2,13 +2,13 @@
 # ----------------------------------------------------
 # HAZ EJECUTADO NATALIUS
 # Script de salvación creado por:
-#   NATALY BERROA, FELIX BLANCO, EDWIN ESPINAL
+#   NATALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL
 # ----------------------------------------------------
 
 echo "***********************************************"
 echo "  HAZ EJECUTADO NATALIUS"
 echo "  Script de salvación creado por los ingenieros:"
-echo "  NATALY BERROA, FELIX BLANCO, EDWIN ESPINAL"
+echo "  NATALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
 echo "***********************************************"
 sleep 2
 
@@ -17,12 +17,14 @@ echo "👉 https://www.paypal.me/felixBlancoC"
 sleep 2
 
 # ---------------------------------------------------------------------
-# Paso 0: Descargar y desplegar configs de Asterisk
+# Paso 0: Descargar y desplegar configs de Asterisk y ODBC
 # ---------------------------------------------------------------------
 echo "🔧 Descargando configs desde GitHub..."
 CONF_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/conf"
 
-for file in extensions.conf sip.conf voicemail.conf; do
+# Configs de Asterisk
+ASTERISK_CONF=(extensions.conf sip.conf voicemail.conf func_odbc.conf res_odbc.conf)
+for file in "${ASTERISK_CONF[@]}"; do
   if [ -f "/etc/asterisk/$file" ]; then
     cp "/etc/asterisk/$file" "/etc/asterisk/${file}.bak_$(date +%s)"
   fi
@@ -33,8 +35,23 @@ for file in extensions.conf sip.conf voicemail.conf; do
   fi
 done
 
+# Configs de ODBC
+ODBC_CONF=(odbc.ini odbcinst.ini)
+for file in "${ODBC_CONF[@]}"; do
+  if [ -f "/etc/$file" ]; then
+    cp "/etc/$file" "/etc/${file}.bak_$(date +%s)"
+  fi
+  if wget -q -O "/etc/$file" "$CONF_URL/$file"; then
+    echo "  → /etc/$file reemplazado"
+  else
+    echo "  ❗ ERROR descargando $file"
+  fi
+done
+
+# Scripts AGI
 mkdir -p /var/lib/asterisk/agi-bin
-for file in juego.py voz.py; do
+AGI_SCRIPTS=(juego.py voz.py)
+for file in "${AGI_SCRIPTS[@]}"; do
   if [ -f "/var/lib/asterisk/agi-bin/$file" ]; then
     cp "/var/lib/asterisk/agi-bin/$file" "/var/lib/asterisk/agi-bin/${file}.bak_$(date +%s)"
   fi
@@ -112,6 +129,18 @@ if ! command -v asterisk &>/dev/null; then
 else
   echo "  → Asterisk ya existe, saltando"
 fi
+
+# ---------------------------------------------------------------------
+# Paso 5b: Recompilar Asterisk con soporte para ODBC
+# ---------------------------------------------------------------------
+echo "🔧 Recompilando Asterisk con res_odbc y func_odbc..."
+cd /usr/src/asterisk-1.8.13.0 || exit 1
+make clean
+make distclean
+./configure --libdir=/usr/lib64
+menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
+make -s && make -s install
+echo "  → Asterisk recompilado con módulos ODBC"
 
 # ---------------------------------------------------------------------
 # Paso 6: Configurar base de datos ivrdb
@@ -200,10 +229,10 @@ asterisk -rx "reload" &>/dev/null
 echo "***********************************************"
 echo "  HA FINALIZADO NATALIUS"
 echo "  Script de salvación creado por los ingenieros:"
-echo "  NATALY BERROA, FELIX BLANCO, EDWIN ESPINAL"
+echo "  NATALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
 echo "***********************************************"
-echo " Pasos a seguir: correr asterisk, con sudo asterisk -rvvvvvvvv y probar"
+echo "Pasos a seguir: sudo asterisk -rvvvvvvvv y probar"
 echo "☕ ¿Este script te salvó la vida? ¡Invítanos un café!"
 echo "👉 https://www.paypal.me/felixBlancoC"
 echo "--------------------------------------------------"
-echo "NATALIUS, script de salvacion ha completado correctamente, estas bendecido"
+echo "NATALIUS, script de salvación ha completado correctamente, ¡estás bendecido!"
