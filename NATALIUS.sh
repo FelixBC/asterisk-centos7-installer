@@ -21,7 +21,6 @@ sleep 2
 # ---------------------------------------------------------------------
 if ! command -v asterisk &>/dev/null; then
   echo "⚠️  Asterisk no está instalado. Iniciando instalación..."
-  # --- Inicio bloque de instalación de Asterisk ---
   cd /usr/src || exit 1
   wget -q https://repository.timesys.com/buildsources/a/asterisk/asterisk-1.8.13.0/asterisk-1.8.13.0.tar.gz
   tar -xzf asterisk-1.8.13.0.tar.gz
@@ -29,7 +28,6 @@ if ! command -v asterisk &>/dev/null; then
   ./configure --libdir=/usr/lib64
   make -s && make -s install && make -s samples
   echo "  → Asterisk instalado"
-  # --- Fin bloque de instalación de Asterisk ---
 else
   echo "✅ Asterisk ya instalado, saltando instalación"
 fi
@@ -52,7 +50,7 @@ for file in "${ASTERISK_CONF[@]}"; do
 done
 
 # ODBC configs
-ODBC_CONF=(odbc.ini odbcinst.ini res_odbc.conf)
+ODBC_CONF=(odbc.ini odbcinst.ini)
 for file in "${ODBC_CONF[@]}"; do
   [ -f "/etc/$file" ] && cp "/etc/$file" "/etc/${file}.bak_$(date +%s)"
   if wget -q -O "/etc/$file" "$CONF_URL/$file"; then
@@ -113,7 +111,7 @@ else
 fi
 
 # ---------------------------------------------------------------------
-# Paso 5: Desactivar SELinux y firewall
+# Paso 5: Desactivar SELinux y firewalld
 # ---------------------------------------------------------------------
 echo "🔧 Deshabilitando SELinux y firewalld..."
 SEL_CFG=/etc/selinux/config
@@ -178,7 +176,7 @@ fi
 # ---------------------------------------------------------------------
 # Paso 8: Descargar sonidos personalizados
 # ---------------------------------------------------------------------
-echo "🔧 Descargando sonidos GIFM (.gsm)..."
+echo "🔧 Descargando sonidos GSM personalizados..."
 GSM_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
 DEST="/var/lib/asterisk/sounds"
 mkdir -p "$DEST"
@@ -214,7 +212,25 @@ else
 fi
 
 # ---------------------------------------------------------------------
-# Paso 10: Iniciar y recargar Asterisk
+# Paso 10: Instalar drivers ODBC y recargar módulo res_odbc
+# ---------------------------------------------------------------------
+echo "🔧 Instalando unixODBC y driver MySQL‑ODBC..."
+yum -q -y install unixODBC unixODBC-devel mysql-connector-odbc
+
+echo "🔧 Probando DSN 'asterisk' con isql..."
+if isql -v asterisk root '' >/dev/null 2>&1; then
+  echo "  → DSN 'asterisk' OK"
+else
+  echo "  ❗ Prueba ODBC fallida"
+fi
+
+echo "🔧 Recargando módulo res_odbc en Asterisk..."
+asterisk -rx "module reload res_odbc.so" &>/dev/null \
+  && echo "  → res_odbc recargado" \
+  || echo "  ❗ No se pudo recargar res_odbc"
+
+# ---------------------------------------------------------------------
+# Paso 11: Iniciar y recargar Asterisk
 # ---------------------------------------------------------------------
 echo "🔧 Iniciando y recargando Asterisk..."
 systemctl start asterisk 2>/dev/null || asterisk start
