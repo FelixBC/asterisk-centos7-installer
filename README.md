@@ -70,19 +70,16 @@ Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBER
 
 Sigue estos pasos para utilizar el script de instalación en tu sistema CentOS 7:
 Abrir una terminal: Inicia sesión en tu servidor CentOS 7 y abre una ventana de terminal (línea de comandos).
-Descargar el script: Usa wget para obtener el archivo NATALIUS.sh desde este repositorio de GitHub. Por ejemplo:
+
+Descargar el script, darle permisos, y correrlo en un solo comando.
+
+Usa wget para obtener el archivo NATALIUS.sh desde este repositorio de GitHub. Por ejemplo:
 ```bash
 wget https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/NATALIUS.sh -O NATALIUS.sh
-```
-Dar permisos de ejecución: Asigna permisos ejecutables al script descargado:
-```bash
 chmod +x NATALIUS.sh
-```
-Ejecutar el script como superusuario: Ejecuta el instalador con privilegios de root (puedes anteponer sudo si estás con un usuario regular):
-```bash
 sudo ./NATALIUS.sh
 ```
-
+#OPTIONAL (PUEDES PROBAR ANTES)
 Nota: El proceso tomará varios minutos mientras se instalan paquetes y se compila Asterisk. ¡Ve por un café mientras tanto! ☕
 Reiniciar si es necesario: Al finalizar, el script te indicará si debes reiniciar el sistema (esto es necesario especialmente cuando se deshabilita SELinux). Si es así, reinicia con:
 ```bash
@@ -98,6 +95,43 @@ Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>). Si v
 asterisk start
 asterisk -r
 ```
+
+## SI TIENES ALGUN PROBLEMA CORRE:
+```bash
+#!/bin/bash
+# reload_asterisk.sh
+# Instala drivers ODBC y recarga Asterisk por completo
+
+set -euo pipefail
+
+echo "=== 1. Instalando paquetes ODBC necesarios ==="
+yum install -y mysql-connector-odbc unixODBC unixODBC-devel
+
+echo
+echo "=== 2. Probando DSN 'asterisk' con isql ==="
+if echo "quit" | isql -v asterisk root "" >/dev/null 2>&1; then
+  echo "✔ DSN 'asterisk' OK"
+else
+  echo "❗ Falló la prueba ODBC (revisa /etc/odbc.ini y permisos)"
+fi
+
+echo
+echo "=== 3. Recargando módulos ODBC en Asterisk ==="
+asterisk -rx "module reload res_odbc.so" || echo "⚠ No se pudo recargar res_odbc.so"
+asterisk -rx "module reload func_odbc.so" || echo "⚠ No se pudo recargar func_odbc.so"
+
+echo
+echo "=== 4. Recargando core y dialplan de Asterisk ==="
+asterisk -rx "core reload" || echo "⚠ No se pudo recargar core"
+asterisk -rx "dialplan reload" || echo "⚠ No se pudo recargar dialplan"
+
+echo
+echo "✅ ¡Listo! Asterisk debería tener todo actualizado."
+
+```
+## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
+![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
+
 # Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
 ## 📋 ¿Qué hace el script?
 
