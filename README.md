@@ -1,70 +1,32 @@
-# 🛰️ Instalador de Asterisk 1.8.13.0 para CentOS 7
-## AUTOMATIZADO
-
-Este script instala Asterisk 1.8.13.0 en **CentOS 7** de forma automatizada, incluyendo todas las dependencias, librerías, configuración de repositorios y desactivación de SELinux.
-
----
-
-## 🧑‍💻 ¿Para quién es esto?
-
-Para estudiantes, técnicos o entusiastas que necesiten instalar Asterisk en una máquina virtual o entorno de pruebas usando CentOS 7. Ideal para ciclos de redes, telecomunicaciones o laboratorios.
-
----
-
-## ⚙️ Cómo usarlo
-
-### 1. Abre la terminal en CentOS 7
-
-Haz clic derecho en el escritorio → “Open Terminal”.
-
-### 2. Descarga el script con `wget`
-
-```bash
-wget https://raw.githubusercontent.com/felixBlanco/asterisk-centos7-installer/main/install_asterisk.sh -O install_asterisk.sh
-```
-3. Dale permisos de ejecución 
-```bash
-chmod +x install_asterisk.sh
-```
-4. Ejecuta el script
-```bash
-./install_asterisk.sh
-```
-5. Cuando finalice, reinicia tu máquina
-```bash
-sudo shutdown -r now
-```
-6. Después del reinicio, accede a Asterisk
-```bash
-
-cd /etc/asterisk
-asterisk -r
-```
-
-Si da error de socket, usa:
-
-```bash
-
-asterisk start && asterisk -r
-```
-
-## SI SOLO DESEAS INSTALLAR ASTERISK SOLO HASTA AHI:
-
-
-## PARA PROYECTO FINAL PARTICULAMENTE:
-
-## 🚀 NATALIUS.sh - Instalador Automático de Asterisk 1.8.13.0 en CentOS 7
-NATALIUS.sh es un script de Bash para instalar y configurar Asterisk 1.8.13.0 en CentOS 7 de forma automática. Su propósito es ahorrarte tiempo y esfuerzo, desplegando un servidor Asterisk funcional con todas sus dependencias y configuraciones (¡incluyendo audio en español, base de datos y más!) en unos pocos minutos.
+# 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
 
 # Tabla de Contenidos
-🎯 ¿Para quién es esto?
-▶️ Cómo usarlo
-📋 ¿Qué hace el script?
-👥 Autores
-☕ ¿Te fue útil?
-🎯 ¿Para quién es esto?
 
-Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBERTY TINEO), tarea proyecto final, desarrolladores y administradores de sistemas que necesiten implantar Asterisk 1.8 rápidamente en CentOS 7. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh es para ti.
+- [🛰️ PARA PROYECTO FINAL PARTICULARMENTE](#para-proyecto-final-particularmente)
+- [▶️ Cómo usarlo](#cómo-usarlo)
+- [Nota: El proceso tomará varios minutos…](#nota-el-proceso-tomará-varios-minutos-mientras-se-instalan-paquetes-y-se-compila-asterisk)
+  - [Verificar Asterisk](#verificar-asterisk)
+  - [Entrada al CLI de Asterisk](#esto-debería-llevarte-a-la-consola-interactiva-de-asterisk-prompt-cli)
+- [SI TIENES ALGÚN PROBLEMA](#si-tienes-algún-problema)
+- [SI TODO TERMINÓ, CONFIGURA EL SOFTPHONE](#si-todo-terminó-configura-el-softphone--y-marca-📞-700)
+- [📋 ¿Qué hace el script?](#qué-hace-el-script)
+- [✅ Funcionalidades del script](#funcionalidades-del-script)
+  - [⚙️ Instalación de dependencias](#instalación-de-dependencias)
+  - [🔐 SELinux, repositorios y desactivar firewall](#selinux-repositorios-y-desactivar-firewall)
+  - [📦 Instalación de Asterisk 1.8.13.0](#instalación-de-asterisk-18130)
+    - [🧩 Librerías adicionales](#librerías-adicionales)
+    - [🛠️ Base de datos MariaDB](#base-de-datos-mariadb)
+    - [🔊 Sonidos en español para Asterisk](#sonidos-en-español-para-asterisk)
+    - [🤖 Integración de scripts AGI](#integración-de-scripts-agi)
+    - [📞 Actualización del dialplan (`extensions.conf`)](#actualización-del-dialplan-extensionsconf)
+- [Próximas actualizaciones](#próximas-actualizaciones)
+- [☕ ¿Te fue útil?](#te-fue-útil)
+- [👥 Autores (El equipo Nautilius)](#autores-el-equipo-nautilius)
+
+
+
+
+Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBERTY TINEO), tarea proyecto final. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh hara todo esto por ti.
 
 # ▶️ Cómo usarlo
 
@@ -79,79 +41,53 @@ wget https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/N
 chmod +x NATALIUS.sh
 sudo ./NATALIUS.sh
 ```
-#OPTIONAL (PUEDES PROBAR ANTES)
-Nota: El proceso tomará varios minutos mientras se instalan paquetes y se compila Asterisk. ¡Ve por un café mientras tanto! ☕
-Reiniciar si es necesario: Al finalizar, el script te indicará si debes reiniciar el sistema (esto es necesario especialmente cuando se deshabilita SELinux). Si es así, reinicia con:
-```bash
-sudo shutdown -r now
-```
-Verificar Asterisk: Después del reinicio, abre de nuevo la terminal y comprueba que Asterisk esté funcionando:
-```bash
-cd /etc/asterisk
+# Nota: El proceso tomará varios minutos mientras se instalan paquetes y se compila Asterisk. ¡Ve por un café mientras tanto! ☕
+
+#### Verificar Asterisk: abre de nuevo la terminal y comprueba que Asterisk esté funcionando:
+```bash  
+asterisk start
 asterisk -rvvvvvvvvv
 ```
-Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>). Si ves un error del tipo "does /var/run/asterisk/asterisk.ctl exist?", inicia el servicio manualmente con:
-```bash
-asterisk start
-asterisk -rvvvvvvvv
-```
+#### Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>).
+
 # Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
-## SI TIENES ALGUN PROBLEMA CORRE:
+## SI TIENES ALGUN PROBLEMA:   
+#### Es probable que asterisk no este recargando los modulos correctamente o la ODBC no este cargando bien, esto puede solucionarse recargando los paquetes o reiniciando la PC.  
+  Corre estos comandos y reinicia, luego prueba:
 ```bash
-#!/bin/bash
-# reload_asterisk.sh
-# Instala drivers ODBC y recarga Asterisk por completo
-
-set -euo pipefail
-
-echo "=== 1. Instalando paquetes ODBC necesarios ==="
 yum install -y mysql-connector-odbc unixODBC unixODBC-devel
-
-echo
-echo "=== 2. Probando DSN 'asterisk' con isql ==="
-if echo "quit" | isql -v asterisk root "" >/dev/null 2>&1; then
-  echo "✔ DSN 'asterisk' OK"
-else
-  echo "❗ Falló la prueba ODBC (revisa /etc/odbc.ini y permisos)"
-fi
-
-echo
-echo "=== 3. Recargando módulos ODBC en Asterisk ==="
-asterisk -rx "module reload res_odbc.so" || echo "⚠ No se pudo recargar res_odbc.so"
-asterisk -rx "module reload func_odbc.so" || echo "⚠ No se pudo recargar func_odbc.so"
-
-echo
-echo "=== 4. Recargando core y dialplan de Asterisk ==="
-asterisk -rx "core reload" || echo "⚠ No se pudo recargar core"
-asterisk -rx "dialplan reload" || echo "⚠ No se pudo recargar dialplan"
-
-echo
-echo "✅ ¡Listo! Asterisk debería tener todo actualizado."
-
+isql -v asterisk root ""
+asterisk -rx "module reload res_odbc.so"
+asterisk -rx "module reload func_odbc.so"
+asterisk -rx "core reload"
+asterisk -rx "dialplan reload"
 ```
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
 ![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
 
 
-## 📋 ¿Qué hace el script?
+# 📋 ¿Qué hace el script?
 
-`NATALIUS.sh` automatiza todo el proceso de instalación y configuración de **Asterisk 1.8.13.0** en **CentOS 7** de forma **idempotente** (es decir, puedes ejecutarlo varias veces sin dañar configuraciones previas ni repetir pasos innecesarios).
+`NATALIUS.sh` es un instalador y configurador completo de Asterisk 1.8.13.0 sobre CentOS 7, diseñado para que, con un solo comando, tengas un sistema PBX operativo y listo para probar. Al ejecutarlo, primero desactiva SELinux/Firewalls y actualiza los repositorios para usar los mirrors de vault.centos.org; a continuación instala todas las dependencias necesarias, desde compiladores y librerías de desarrollo hasta MariaDB y los módulos JSON (jansson) y ODBC para MySQL.
+
+Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGIs personalizados (los scripts de juego y voz), configura la base de datos ivrdb con las tablas de premios y llamadas, y despliega el dialplan en extensions.conf. A continuación limpia y vuelve a generar todos los archivos de audio en formato GSM para el IVR, ajusta permisos, recarga los módulos en caliente y arranca Asterisk. Al finalizar, muestra un mensaje de éxito y un enlace para “invitar un café” a los creadores.
 
 ---
 
-### ✅ Funcionalidades del script:
+## ✅ Funcionalidades del script:
 
-#### ⚙️ Instalación de dependencias
+## ⚙️ Instalación de dependencias
 - Instala compiladores, librerías de desarrollo, MariaDB y más usando `yum`.
 
-#### 🔐 SELinux y repositorios
-- Desactiva SELinux (haciendo backup del archivo `config`).
+## 🔐 SELinux, repositorios y desactivar firewall
+- Desactiva SELinux (haciendo backup del archivo `config`).  
+- Desactiva firewall (puede causar problemas).
 - Actualiza los repositorios para usar los mirrors de `vault.centos.org`.
 
-#### 📦 Instalación de Asterisk 1.8.13.0
+## 📦 Instalación de Asterisk 1.8.13.0
 - Descarga, compila e instala Asterisk **solo si no está instalado**.
 
-#### 🧩 Librerías adicionales
+### 🧩 Librerías adicionales
 - Verifica e instala **jansson** (para soporte JSON).
 - Verifica e instala **mysql-connector-python** si no existe (usado por los scripts AGI).
 
