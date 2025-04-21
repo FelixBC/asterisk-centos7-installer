@@ -73,6 +73,9 @@ asterisk -rx "module reload func_odbc.so"
 asterisk -rx "core reload"
 asterisk -rx "dialplan reload"
 ```
+<a name="if-setup-complete-configure-softphone-and-dial-700"></a>
+
+
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
 ![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
 <a name="what-does-the-script-do"></a>
