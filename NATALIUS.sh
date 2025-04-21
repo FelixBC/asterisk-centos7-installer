@@ -263,19 +263,23 @@ echo "🔊 Descargando jingle de despedida..."
 TMP_JINGLE="/tmp/adios.m4a"
 if wget -q -O "${TMP_JINGLE}" \
     "https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/adios.m4a"; then
-  echo "  → jingle descargado en ${TMP_JINGLE}"
+  echo "  → ${TMP_JINGLE} descargado"
 else
-  echo "  ❗ Error al descargar el jingle, omitiendo reproducción."
+  echo "  ❗ No se pudo descargar el jingle, omitiendo reproducción."
   TMP_JINGLE=""
 fi
 
 if [ -n "${TMP_JINGLE}" ]; then
-  # Instalar repositorios + ffmpeg sólo si no existe ffplay
+  # Sólo si no existe ffplay instalamos repositorio + paquete
   if ! command -v ffplay &>/dev/null; then
-    echo "📦 Instalando ffmpeg (vía RPM Fusion)..."
+    echo "📦 Habilitando repositorios EPEL + RPM Fusion..."
     yum install -y epel-release
-    yum install -y https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
-    yum install -y ffmpeg
+    yum localinstall -y --nogpgcheck \
+      https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm \
+      https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
+    yum clean all && yum makecache
+    echo "📦 Instalando ffmpeg (incluye ffplay)..."
+    yum install -y ffmpeg ffmpeg-devel
   fi
 
   if command -v ffplay &>/dev/null; then
@@ -283,7 +287,7 @@ if [ -n "${TMP_JINGLE}" ]; then
     ffplay -nodisp -autoexit "${TMP_JINGLE}" >/dev/null 2>&1 || \
       echo "  ❗ Falló la reproducción con ffplay"
   else
-    echo "⚠️  ffplay no disponible, omitiendo reproducción de jingle"
+    echo "⚠️  Aún no se encontró ffplay, omitiendo reproducción"
   fi
 
   echo "🗑  Borrando jingle..."
