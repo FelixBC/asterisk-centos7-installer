@@ -1,12 +1,12 @@
 # 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
-
+<a name="for-final-project"></a>
 # Tabla de Contenidos
 
-- [Para proyecto final particularmente](#para-proyecto-final-particularmente)
-- [Cómo usarlo](#cómo-usarlo)
-  - [Verificar Asterisk](#verificar-asterisk)
-  - [Esto deberia llevarte a la consola interactiva de Asterisk prompt cli](#esto-deberia-llevarte-a-la-consola-interactiva-de-asterisk-prompt-cli)
-- [Si tienes un problema](#si-tienes-un-problema)
+- [Para proyecto final particularmente](#for-final-project)
+- [Cómo usarlo](#how-to-use)
+  - [Verificar Asterisk](#verify-asterisk)
+  - [Esto deberia llevarte a la consola interactiva de Asterisk prompt cli](#asterisk-cli-prompt)
+- [Si tienes un problema](#if-you-have-a-problem)
 - [Si todo termino configura el softphone y marca 700](#si-todo-termino-configura-el-softphone-y-marca-700)
 - [Que hace el script](#que-hace-el-script)
 - [Funcionalidades del script](#funcionalidades-del-script)
@@ -28,6 +28,7 @@
 Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBERTY TINEO), tarea proyecto final. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh hara todo esto por ti.
 
 # ▶️ Cómo usarlo
+<a name="how-to-use"></a>
 
 Sigue estos pasos para utilizar el script de instalación en tu sistema CentOS 7:
 Abrir una terminal: Inicia sesión en tu servidor CentOS 7 y abre una ventana de terminal (línea de comandos).
@@ -43,14 +44,16 @@ sudo ./NATALIUS.sh
 # Nota: El proceso tomará varios minutos mientras se instalan paquetes y se compila Asterisk. ¡Ve por un café mientras tanto! ☕
 
 #### Verificar Asterisk: abre de nuevo la terminal y comprueba que Asterisk esté funcionando:
+<a name="verify-asterisk"></a>
 ```bash  
 asterisk start
 asterisk -rvvvvvvvvv
 ```
+<a name="asterisk-cli-prompt"></a>
 #### Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>).
-
 # Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
 ## SI TIENES ALGUN PROBLEMA:   
+<a name="if-you-have-a-problem"></a>
 #### Es probable que asterisk no este recargando los modulos correctamente o la ODBC no este cargando bien, esto puede solucionarse recargando los paquetes o reiniciando la PC.  
   Corre estos comandos y reinicia, luego prueba:
 ```bash
