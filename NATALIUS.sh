@@ -257,6 +257,30 @@ systemctl start asterisk 2>/dev/null || asterisk start
 asterisk -rx "reload" &>/dev/null
 
 # ---------------------------------------------------------------------
+# Paso 12: Descargar + reproducir jingle de despedida y borrarlo
+# ---------------------------------------------------------------------
+echo "🔊 Descargando jingle de despedida..."
+TMP_JINGLE="/tmp/adios.m4a"
+wget -q -O "${TMP_JINGLE}" \
+  "https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/adios.m4a" \
+  && echo "  → jingle descargado en ${TMP_JINGLE}" \
+  || echo "  ❗ Error al descargar el jingle"
+
+# Asegurarnos de tener ffplay
+if ! command -v ffplay &>/dev/null; then
+  echo "📦 Instalando ffmpeg para reproducción de m4a..."
+  yum install -y epel-release
+  yum install -y ffmpeg
+fi
+
+echo "▶️  Reproduciendo jingle..."
+ffplay -nodisp -autoexit "${TMP_JINGLE}" >/dev/null 2>&1 || \
+  echo "  ❗ No se pudo reproducir con ffplay"
+
+echo "🗑  Borrando jingle..."
+rm -f "${TMP_JINGLE}"
+
+# ---------------------------------------------------------------------
 # Fin
 # ---------------------------------------------------------------------
 echo "***********************************************"
