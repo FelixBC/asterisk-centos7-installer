@@ -88,14 +88,14 @@ sudo shutdown -r now
 Verificar Asterisk: Después del reinicio, abre de nuevo la terminal y comprueba que Asterisk esté funcionando:
 ```bash
 cd /etc/asterisk
-asterisk -r
+asterisk -rvvvvvvvvv
 ```
 Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>). Si ves un error del tipo "does /var/run/asterisk/asterisk.ctl exist?", inicia el servicio manualmente con:
 ```bash
 asterisk start
-asterisk -r
+asterisk -rvvvvvvvv
 ```
-
+# Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
 ## SI TIENES ALGUN PROBLEMA CORRE:
 ```bash
 #!/bin/bash
@@ -132,7 +132,7 @@ echo "✅ ¡Listo! Asterisk debería tener todo actualizado."
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
 ![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
 
-# Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
+
 ## 📋 ¿Qué hace el script?
 
 `NATALIUS.sh` automatiza todo el proceso de instalación y configuración de **Asterisk 1.8.13.0** en **CentOS 7** de forma **idempotente** (es decir, puedes ejecutarlo varias veces sin dañar configuraciones previas ni repetir pasos innecesarios).
