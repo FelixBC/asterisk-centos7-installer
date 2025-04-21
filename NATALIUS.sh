@@ -138,18 +138,22 @@ make -s && make -s install
 echo "  → Asterisk recompilado con módulos ODBC"
 
 # ---------------------------------------------------------------------
-# Paso 7: Configurar base de datos ivrdb
+# Paso 7: (Re)crear ivrdb + tabla premios “limpia”
 # ---------------------------------------------------------------------
-echo "🔧 Configurando ivrdb en MariaDB..."
+echo "🔧 (Re)creando ivrdb y tabla premios…"
 systemctl start mariadb
+
 mysql -u root <<SQL
-CREATE DATABASE IF NOT EXISTS ivrdb;
+DROP DATABASE IF EXISTS ivrdb;
+CREATE DATABASE ivrdb;
 USE ivrdb;
-CREATE TABLE IF NOT EXISTS premios (
+
+CREATE TABLE premios (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  premio VARCHAR(50)
+  premio VARCHAR(50) NOT NULL
 );
-CREATE TABLE IF NOT EXISTS llamadas (
+
+CREATE TABLE llamadas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   extension VARCHAR(10),
   fecha_hora DATETIME,
@@ -158,29 +162,41 @@ CREATE TABLE IF NOT EXISTS llamadas (
   premio_ganado VARCHAR(50),
   tuvo_chance BOOLEAN
 );
-CREATE TABLE IF NOT EXISTS voice (
+
+CREATE TABLE voice (
   id INT AUTO_INCREMENT PRIMARY KEY,
   fechahora DATETIME,
   texto VARCHAR(100)
 );
-SQL
-if [ "$(mysql -u root -D ivrdb -N -e "SELECT COUNT(*) FROM premios;")" -eq 0 ]; then
-  mysql -u root -D ivrdb <<SQL
+
 INSERT INTO premios (premio) VALUES
-('lavadora'),('smart-tv'),('airfryer'),('laptop'),('celular'),
-('tablet'),('audifonos'),('bocina-bluetooth'),('reloj-inteligente'),('bonificacion');
+  ('lavadora'),
+  ('smart-tv'),
+  ('airfryer'),
+  ('laptop'),
+  ('celular'),
+  ('tablet'),
+  ('audífonos'),
+  ('bocina-bluetooth'),
+  ('reloj-inteligente'),
+  ('bonificacion');
 SQL
-  echo "  → Tabla premios poblada"
-fi
+
+echo "  → ivrdb y tabla premios poblada con nombres LOWERCASE–HYPHENATED"
+
 
 # ---------------------------------------------------------------------
-# Paso 8: Descargar sonidos personalizados
+# Paso 8: (Re)Construir sonidos personalizados desde cero
 # ---------------------------------------------------------------------
-echo "🔧 Descargando sonidos GSM personalizados..."
-GSM_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
+echo "🔄 Limpiando sonidos antiguos..."
 DEST="/var/lib/asterisk/sounds"
+rm -rf "${DEST}"/*.gsm     # borra TODOS los .gsm viejos
 mkdir -p "$DEST"
 
+echo "🔧 Descargando sonidos personalizados..."
+GSM_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
+
+# Lista completa de archivos a traer siempre fresco
 GSM_FILES=(
   adios.gsm bonificacion.gsm ganaste.gsm lavadora.gsm perdiste.gsm
   airfryer.gsm celular.gsm gracias-2.gsm lo-sentimos.gsm reloj-inteligente.gsm
@@ -192,12 +208,13 @@ GSM_FILES=(
 )
 
 for f in "${GSM_FILES[@]}"; do
-  if wget -q -O "$DEST/$f" "$GSM_URL/$f"; then
-    echo "  ✅ $f descargado"
+  if wget -q -O "${DEST}/${f}" "${GSM_URL}/${f}"; then
+    echo "  ✅ ${f} descargado"
   else
-    echo "  ❗ ERROR descargando $f"
+    echo "  ❗ ERROR descargando ${f}"
   fi
 done
+
 
 # ---------------------------------------------------------------------
 # Paso 9: Instalar conector MySQL para Python
