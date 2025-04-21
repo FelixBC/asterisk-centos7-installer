@@ -2,26 +2,26 @@
 # 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
 
 # Tabla de Contenidos
-
 - [Para proyecto final particularmente](#for-final-project)
 - [Cómo usarlo](#how-to-use)
   - [Verificar Asterisk](#verify-asterisk)
-  - [Esto deberia llevarte a la consola interactiva de Asterisk prompt cli](#asterisk-cli-prompt)
+  - [Esto debería llevarte a la consola interactiva de Asterisk prompt CLI](#asterisk-cli-prompt)
 - [Si tienes un problema](#if-you-have-a-problem)
-- [Si todo termino configura el softphone y marca 700](#si-todo-termino-configura-el-softphone-y-marca-700)
-- [Que hace el script](#que-hace-el-script)
-- [Funcionalidades del script](#funcionalidades-del-script)
-  - [Instalacion de dependencias](#instalacion-de-dependencias)
-  - [Selinux repositorios y desactivar firewall](#selinux-repositorios-y-desactivar-firewall)
-  - [Instalacion de asterisk 18130](#instalacion-de-asterisk-18130)
-  - [Librerias adicionales](#librerias-adicionales)
-  - [Base de datos mariadb](#base-de-datos-mariadb)
-  - [Sonidos en espanol para asterisk](#sonidos-en-espanol-para-asterisk)
-  - [Integracion de scripts agi](#integracion-de-scripts-agi)
-  - [Actualizacion del dialplan extensionsconf](#actualizacion-del-dialplan-extensionsconf)
-- [Proximas actualizaciones](#proximas-actualizaciones)
-- [Te fue util](#te-fue-util)
-- [Autores el equipo nautilius](#autores-el-equipo-nautilius)
+- [Si todo terminó configura el softphone y marca 700](#if-setup-complete-configure-softphone-and-dial-700)
+- [Qué hace el script](#what-does-the-script-do)
+- [Funcionalidades del script](#script-functionality)
+  - [Instalación de dependencias](#dependency-installation)
+  - [SELinux, repositorios y desactivar firewall](#selinux-repos-and-firewall-disable)
+  - [Instalación de Asterisk 1.8.13.0](#asterisk-18130-installation)
+  - [Librerías adicionales](#additional-libraries)
+  - [Base de datos MariaDB](#mariadb-database-setup)
+  - [Sonidos en español para Asterisk](#spanish-sounds-for-asterisk)
+  - [Integración de scripts AGI](#agi-script-integration)
+  - [Actualización del dialplan (extensions.conf)](#dialplan-update-extensionsconf)
+- [Próximas actualizaciones](#upcoming-updates)
+- [¿Te fue útil?](#was-it-useful)
+- [Autores - equipo Nautilius](#authors-nautilius-team)
+
 
 
 
@@ -75,6 +75,7 @@ asterisk -rx "dialplan reload"
 ```
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
 ![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
+<a name="what-does-the-script-do"></a>
 
 
 # 📋 ¿Qué hace el script?
@@ -84,23 +85,35 @@ asterisk -rx "dialplan reload"
 Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGIs personalizados (los scripts de juego y voz), configura la base de datos ivrdb con las tablas de premios y llamadas, y despliega el dialplan en extensions.conf. A continuación limpia y vuelve a generar todos los archivos de audio en formato GSM para el IVR, ajusta permisos, recarga los módulos en caliente y arranca Asterisk. Al finalizar, muestra un mensaje de éxito y un enlace para “invitar un café” a los creadores.
 
 ---
+<a name="script-functionality"></a>
+
 
 ## ✅ Funcionalidades del script:
+<a name="dependency-installation"></a>
+
 
 ## ⚙️ Instalación de dependencias
 - Instala compiladores, librerías de desarrollo, MariaDB y más usando `yum`.
+<a name="selinux-repos-and-firewall-disable"></a>
+
 
 ## 🔐 SELinux, repositorios y desactivar firewall
 - Desactiva SELinux (haciendo backup del archivo `config`).  
 - Desactiva firewall (puede causar problemas).
 - Actualiza los repositorios para usar los mirrors de `vault.centos.org`.
+- <a name="asterisk-18130-installation"></a>
+
 
 ## 📦 Instalación de Asterisk 1.8.13.0
 - Descarga, compila e instala Asterisk **solo si no está instalado**.
+<a name="additional-libraries"></a>
+
 
 ### 🧩 Librerías adicionales
 - Verifica e instala **jansson** (para soporte JSON).
 - Verifica e instala **mysql-connector-python** si no existe (usado por los scripts AGI).
+<a name="mariadb-database-setup"></a>
+
 
 #### 🛠️ Base de datos MariaDB
 - Crea la base de datos `ivrdb` con las tablas:
@@ -108,20 +121,26 @@ Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGI
   - `llamadas` 📞  
   - `voice` 🗣️
 - Inserta automáticamente **10 premios** si la tabla `premios` está vacía.
+<a name="spanish-sounds-for-asterisk"></a>
+
 
 #### 🔊 Sonidos en español para Asterisk
 - Descarga e instala los sonidos en formato `.gsm` (incluye locuciones del sistema en español).
+<a name="agi-script-integration"></a>
+
 
 #### 🤖 Integración de scripts AGI
 - Copia `juego.py` (juego de adivinar un número).
 - Copia `voz.py` (simulación de reconocimiento de voz).
 - Ambos se colocan en `/var/lib/asterisk/agi-bin/` con permisos de ejecución.
+- <a name="dialplan-update-extensionsconf"></a>
+
 
 #### 📞 Actualización del dialplan (`extensions.conf`)
 - Agrega los contextos `[juego]` y `[reconocimiento]`.
 - Añade la extensión `700` para acceso directo al IVR.
 - Verifica duplicados antes de escribir y hace un **backup del archivo original**.
-
+- <a name="upcoming-updates"></a>
 
 
 # Proximas actualizaciones:
@@ -133,9 +152,13 @@ Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGI
 - Deberia hacer un hall of fame agradeciendo a los colaboardores en github. Con su nombre de github en la ejecucion del script.
 
 ```
+<a name="was-it-useful"></a>
+
+
 
 # ☕ ¿Te fue útil?
 ¡Esperamos que este instalador te haya sido de gran ayuda! Si NATALIUS.sh te ahorró tiempo o te sacó de apuros, invítanos un café ☕ haciendo una donación en PayPal. Cualquier aporte es bienvenido y nos motiva a seguir creando herramientas open source. ¡Gracias por tu apoyo! 👉 https://www.paypal.me/felixBlancoC
+<a name="authors-nautilius-team"></a>
 
 
 
