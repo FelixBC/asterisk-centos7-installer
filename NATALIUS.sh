@@ -217,17 +217,20 @@ fi
 echo "🔧 Instalando unixODBC y driver MySQL‑ODBC..."
 yum -q -y install unixODBC unixODBC-devel mysql-connector-odbc
 
-echo "🔧 Probando DSN 'asterisk' con isql..."
-if isql -v asterisk root '' >/dev/null 2>&1; then
+echo "🔧 Probando DSN 'asterisk' con isql (no interactivo)..."
+if echo "quit" | isql -v asterisk root "" >/dev/null 2>&1; then
   echo "  → DSN 'asterisk' OK"
 else
   echo "  ❗ Prueba ODBC fallida"
 fi
 
 echo "🔧 Recargando módulo res_odbc en Asterisk..."
-asterisk -rx "module reload res_odbc.so" &>/dev/null \
-  && echo "  → res_odbc recargado" \
-  || echo "  ❗ No se pudo recargar res_odbc"
+if asterisk -rx "module reload res_odbc.so" &>/dev/null; then
+  echo "  → res_odbc recargado"
+else
+  echo "  ❗ No se pudo recargar res_odbc"
+fi
+
 
 # ---------------------------------------------------------------------
 # Paso 11: Iniciar y recargar Asterisk
