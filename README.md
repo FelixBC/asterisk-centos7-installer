@@ -1,5 +1,6 @@
-# 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
 <a name="for-final-project"></a>
+# 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
+
 # Tabla de Contenidos
 
 - [Para proyecto final particularmente](#for-final-project)
@@ -26,9 +27,11 @@
 
 
 Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBERTY TINEO), tarea proyecto final. Si no quieres pasar por una instalación manual compleja o buscas un entorno de laboratorio de VoIP listo para usar (con ejemplos de IVR, juego de adivinanza y reconocimiento de voz básicos), NATALIUS.sh hara todo esto por ti.
+<a name="how-to-use"></a>
+
 
 # ▶️ Cómo usarlo
-<a name="how-to-use"></a>
+
 
 Sigue estos pasos para utilizar el script de instalación en tu sistema CentOS 7:
 Abrir una terminal: Inicia sesión en tu servidor CentOS 7 y abre una ventana de terminal (línea de comandos).
@@ -41,19 +44,25 @@ wget https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/N
 chmod +x NATALIUS.sh
 sudo ./NATALIUS.sh
 ```
+<a name="verify-asterisk"></a>
 # Nota: El proceso tomará varios minutos mientras se instalan paquetes y se compila Asterisk. ¡Ve por un café mientras tanto! ☕
 
 #### Verificar Asterisk: abre de nuevo la terminal y comprueba que Asterisk esté funcionando:
-<a name="verify-asterisk"></a>
+
 ```bash  
 asterisk start
 asterisk -rvvvvvvvvv
 ```
 <a name="asterisk-cli-prompt"></a>
+
+
 #### Esto debería llevarte a la consola interactiva de Asterisk (prompt *CLI>).
 # Una vez dentro de la consola de Asterisk, significa que la instalación fue exitosa y Asterisk está en ejecución.
-## SI TIENES ALGUN PROBLEMA:   
 <a name="if-you-have-a-problem"></a>
+
+
+## SI TIENES ALGUN PROBLEMA:   
+
 #### Es probable que asterisk no este recargando los modulos correctamente o la ODBC no este cargando bien, esto puede solucionarse recargando los paquetes o reiniciando la PC.  
   Corre estos comandos y reinicia, luego prueba:
 ```bash
