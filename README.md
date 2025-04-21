@@ -1,14 +1,12 @@
 # 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
 
 # Tabla de Contenidos
-
 - [🛰️ PARA PROYECTO FINAL PARTICULARMENTE](#para-proyecto-final-particularmente)
 - [▶️ Cómo usarlo](#cómo-usarlo)
-- [Nota: El proceso tomará varios minutos…](#nota-el-proceso-tomará-varios-minutos-mientras-se-instalan-paquetes-y-se-compila-asterisk)
   - [Verificar Asterisk](#verificar-asterisk)
   - [Entrada al CLI de Asterisk](#esto-debería-llevarte-a-la-consola-interactiva-de-asterisk-prompt-cli)
-- [SI TIENES ALGÚN PROBLEMA](#si-tienes-algún-problema)
-- [SI TODO TERMINÓ, CONFIGURA EL SOFTPHONE](#si-todo-terminó-configura-el-softphone--y-marca-📞-700)
+- [SI TIENES ALGUN PROBLEMA](#si-tienes-algun-problema)
+- [SI TODO TERMINÓ, CONFIGURA EL SOFTPHONE](#si-todo-termino-configura-el-softphone--y-marca-700)
 - [📋 ¿Qué hace el script?](#qué-hace-el-script)
 - [✅ Funcionalidades del script](#funcionalidades-del-script)
   - [⚙️ Instalación de dependencias](#instalación-de-dependencias)
@@ -18,10 +16,11 @@
     - [🛠️ Base de datos MariaDB](#base-de-datos-mariadb)
     - [🔊 Sonidos en español para Asterisk](#sonidos-en-español-para-asterisk)
     - [🤖 Integración de scripts AGI](#integración-de-scripts-agi)
-    - [📞 Actualización del dialplan (`extensions.conf`)](#actualización-del-dialplan-extensionsconf)
-- [Próximas actualizaciones](#próximas-actualizaciones)
+    - [📞 Actualización del dialplan (extensions.conf)](#actualización-del-dialplan-extensionsconf)
+- [Proximas actualizaciones](#proximas-actualizaciones)
 - [☕ ¿Te fue útil?](#te-fue-útil)
 - [👥 Autores (El equipo Nautilius)](#autores-el-equipo-nautilius)
+
 
 
 
