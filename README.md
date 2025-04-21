@@ -1,25 +1,27 @@
 # 🛰️ PARA PROYECTO FINAL PARTICULARMENTE:
 
 # Tabla de Contenidos
-- [🛰️ PARA PROYECTO FINAL PARTICULARMENTE](#para-proyecto-final-particularmente)
-- [▶️ Cómo usarlo](#cómo-usarlo)
+
+- [Para proyecto final particularmente](#para-proyecto-final-particularmente)
+- [Cómo usarlo](#cómo-usarlo)
   - [Verificar Asterisk](#verificar-asterisk)
-  - [Entrada al CLI de Asterisk](#esto-debería-llevarte-a-la-consola-interactiva-de-asterisk-prompt-cli)
-- [SI TIENES ALGUN PROBLEMA](#si-tienes-algun-problema)
-- [SI TODO TERMINÓ, CONFIGURA EL SOFTPHONE](#si-todo-termino-configura-el-softphone--y-marca-700)
-- [📋 ¿Qué hace el script?](#qué-hace-el-script)
-- [✅ Funcionalidades del script](#funcionalidades-del-script)
-  - [⚙️ Instalación de dependencias](#instalación-de-dependencias)
-  - [🔐 SELinux, repositorios y desactivar firewall](#selinux-repositorios-y-desactivar-firewall)
-  - [📦 Instalación de Asterisk 1.8.13.0](#instalación-de-asterisk-18130)
-    - [🧩 Librerías adicionales](#librerías-adicionales)
-    - [🛠️ Base de datos MariaDB](#base-de-datos-mariadb)
-    - [🔊 Sonidos en español para Asterisk](#sonidos-en-español-para-asterisk)
-    - [🤖 Integración de scripts AGI](#integración-de-scripts-agi)
-    - [📞 Actualización del dialplan (extensions.conf)](#actualización-del-dialplan-extensionsconf)
+  - [Esto debería llevarte a la consola interactiva de Asterisk (prompt cli)](#esto-debería-llevarte-a-la-consola-interactiva-de-asterisk-prompt-cli)
+- [Si tienes algun problema](#si-tienes-algun-problema)
+- [Si todo termino configura el softphone  y marca  700](#si-todo-termino-configura-el-softphone--y-marca--700)
+- [Qué hace el script](#qué-hace-el-script)
+- [Funcionalidades del script](#funcionalidades-del-script)
+  - [Instalación de dependencias](#instalación-de-dependencias)
+  - [Selinux repositorios y desactivar firewall](#selinux-repositorios-y-desactivar-firewall)
+  - [Instalación de Asterisk 18130](#instalación-de-asterisk-18130)
+  - [Librerías adicionales](#librerías-adicionales)
+  - [Base de datos mariadb](#base-de-datos-mariadb)
+  - [Sonidos en español para asterisk](#sonidos-en-español-para-asterisk)
+  - [Integración de scripts agi](#integración-de-scripts-agi)
+  - [Actualización del dialplan extensionsconf](#actualización-del-dialplan-extensionsconf)
 - [Proximas actualizaciones](#proximas-actualizaciones)
-- [☕ ¿Te fue útil?](#te-fue-útil)
-- [👥 Autores (El equipo Nautilius)](#autores-el-equipo-nautilius)
+- [Te fue útil](#te-fue-útil)
+- [Autores el equipo nautilius](#autores-el-equipo-nautilius)
+
 
 
 
