@@ -257,7 +257,22 @@ systemctl start asterisk 2>/dev/null || asterisk start
 asterisk -rx "reload" &>/dev/null
 
 # ---------------------------------------------------------------------
-# Paso 12: Descargar + reproducir jingle de despedida y borrarlo
+# Paso 12: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
+# ---------------------------------------------------------------------
+
+echo "🔧 Instalando dependencias de Python y multimedia..."
+pip3 install --upgrade pip
+pip3 install speechrecognition
+pip3 install mysql-connector-python==8.0.28
+yum install -y epel-release
+yum localinstall -y --nogpgcheck \
+  https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm \
+  https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
+yum clean all && yum makecache
+yum install -y ffmpeg ffmpeg-devel
+echo "  → SpeechRecognition, conector MySQL y FFmpeg instalados"
+# ---------------------------------------------------------------------
+# Paso 13: Descargar + reproducir jingle de despedida y borrarlo
 # ---------------------------------------------------------------------
 echo "🔊 Descargando jingle de despedida..."
 TMP_JINGLE="/tmp/adios.m4a"
