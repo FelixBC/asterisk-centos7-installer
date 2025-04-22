@@ -35,6 +35,12 @@ Este proyecto es ideal para estudiantes cursando Lab. Telecomunicaciones (GIOBER
 
 Sigue estos pasos para utilizar el script de instalación en tu sistema CentOS 7:
 Abrir una terminal: Inicia sesión en tu servidor CentOS 7 y abre una ventana de terminal (línea de comandos).
+Entra en modo root: 
+
+```bash
+su -
+```
+escribe tu password, y luego veras algo como: "root[LocalHost]:"
 
 Descargar el script, darle permisos, y correrlo en un solo comando.
 
