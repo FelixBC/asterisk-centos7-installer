@@ -17,19 +17,27 @@ echo "👉 https://www.paypal.me/felixBlancoC"
 sleep 2
 
 # ---------------------------------------------------------------------
-# Paso 0: Asegurarse de que Asterisk está instalado
+# Paso 0: Asegurarse de que Asterisk está instalado y samples disponibles
 # ---------------------------------------------------------------------
+AST_SRC_DIR="/usr/src/asterisk-1.8.13.0"
 if ! command -v asterisk &>/dev/null; then
-  echo "⚠️  Asterisk no está instalado. Iniciando instalación..."
+  echo "⚠️  Asterisk no está instalado. Iniciando instalación y samples..."
   cd /usr/src || exit 1
   wget -q https://repository.timesys.com/buildsources/a/asterisk/asterisk-1.8.13.0/asterisk-1.8.13.0.tar.gz
   tar -xzf asterisk-1.8.13.0.tar.gz
   cd asterisk-1.8.13.0 || exit 1
   ./configure --libdir=/usr/lib64
   make -s && make -s install && make -s samples
-  echo "  → Asterisk instalado"
+  echo "  → Asterisk instalado y samples generados"
 else
-  echo "✅ Asterisk ya instalado, saltando instalación"
+  echo "✅ Asterisk ya instalado, comprobando samples..."
+  # Regenerar samples si faltan archivos base
+  if [ ! -f /etc/asterisk/asterisk.conf ] && [ -d "$AST_SRC_DIR" ]; then
+    echo "🛠  Archivos de muestra faltantes: regenerando samples..."
+    cd "$AST_SRC_DIR" || exit 1
+    make samples
+    echo "  → Samples regenerados"
+  fi
 fi
 
 # ---------------------------------------------------------------------
