@@ -159,7 +159,7 @@ Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGI
 - Desactiva SELinux (haciendo backup del archivo `config`).  
 - Desactiva firewall (puede causar problemas).
 - Actualiza los repositorios para usar los mirrors de `vault.centos.org`.
-- <a name="asterisk-18130-installation"></a>
+ <a name="asterisk-18130-installation"></a>
 
 
 ## 📦 Instalación de Asterisk 1.8.13.0
@@ -191,14 +191,14 @@ Luego descarga, compila e instala Asterisk junto con sus módulos básicos y AGI
 - Copia `juego.py` (juego de adivinar un número).
 - Copia `voz.py` (simulación de reconocimiento de voz).
 - Ambos se colocan en `/var/lib/asterisk/agi-bin/` con permisos de ejecución.
-- <a name="dialplan-update-extensionsconf"></a>
+ <a name="dialplan-update-extensionsconf"></a>
 
 
 #### 📞 Actualización del dialplan (`extensions.conf`)
 - Agrega los contextos `[juego]` y `[reconocimiento]`.
 - Añade la extensión `700` para acceso directo al IVR.
 - Verifica duplicados antes de escribir y hace un **backup del archivo original**.
-- <a name="upcoming-updates"></a>
+ <a name="upcoming-updates"></a>
 
 
 # Proximas actualizaciones:
