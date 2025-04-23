@@ -8,6 +8,7 @@
   - [Esto debería llevarte a la consola interactiva de Asterisk prompt CLI](#asterisk-cli-prompt)
 - [Si tienes un problema](#if-you-have-a-problem)
 - [Si todo terminó configura el softphone y marca 700](#if-setup-complete-configure-softphone-and-dial-700)
+-  [Para autenticidad](#for-authenticity)
 - [Qué hace el script](#what-does-the-script-do)
 - [Funcionalidades del script](#script-functionality)
   - [Instalación de dependencias](#dependency-installation)
@@ -84,6 +85,20 @@ asterisk -rx "dialplan reload"
 
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
 ![image](https://github.com/user-attachments/assets/d555373c-cf20-45ec-be38-2083a9aa0f92)
+
+<a name="for-authenticity"></a>
+
+## Para autenticidad, cambia los sonidos .gsm del menu, y canciones. OJOO!!:: DEBEN TENER EL MISMO NOMBRE QUE TENIAN, si te da algun error vuelve a chequear los nombres!
+  adios.gsm bonificacion.gsm ganaste.gsm lavadora.gsm perdiste.gsm
+  airfryer.gsm celular.gsm gracias-2.gsm lo-sentimos.gsm reloj-inteligente.gsm
+  audifonos.gsm diga-palabra.gsm gracias.gsm menu-principal.gsm smart-tv.gsm
+  bienvenida.gsm elegir-musica.gsm introduzca-numero.gsm no-disp.gsm tablet.gsm
+  bienvenida-juego.gsm elige-numero.gsm juego-bienvenida.gsm chance-extra.gsm timeout-es.gsm
+  bocina-bluetooth.gsm ganador.gsm laptop.gsm numero-marcado.gsm tuvoz.gsm
+  bachata.gsm merengue.gsm rock.gsm
+``` bash
+cd /var/lib/asterisk/sounds
+```
 <a name="what-does-the-script-do"></a>
 
 
