@@ -8,7 +8,10 @@
   - [Esto debería llevarte a la consola interactiva de Asterisk prompt CLI](#asterisk-cli-prompt)
 - [Si tienes un problema](#if-you-have-a-problem)
 - [Si todo terminó configura el softphone y marca 700](#if-setup-complete-configure-softphone-and-dial-700)
--  [Para autenticidad](#for-authenticity)
+- [Para autenticidad](#for-authenticity)
+- [Convertidor de youtube a MP3](#youtube-mp3)
+- [Convertidor MP3 GSM](#mp3-gsm)
+- [Texto a voces, para el menu gsm](#new-voice-elevenlabs)
 - [Qué hace el script](#what-does-the-script-do)
 - [Funcionalidades del script](#script-functionality)
   - [Instalación de dependencias](#dependency-installation)
@@ -95,12 +98,35 @@ asterisk -rx "dialplan reload"
   bienvenida.gsm elegir-musica.gsm introduzca-numero.gsm no-disp.gsm tablet.gsm
   bienvenida-juego.gsm elige-numero.gsm juego-bienvenida.gsm chance-extra.gsm timeout-es.gsm
   bocina-bluetooth.gsm ganador.gsm laptop.gsm numero-marcado.gsm tuvoz.gsm
-  bachata.gsm merengue.gsm rock.gsm
+  
 ``` bash
 cd /var/lib/asterisk/sounds
 ```
-<a name="what-does-the-script-do"></a>
 
+<a name="youtube-mp3"></a>
+
+bachata.gsm merengue.gsm rock.gsm 
+#Convertidor de Youtube a MP3, con corte permitido. (Preferiblemente 10 segundos para las canciones) 
+```
+https://soundly.cc/es
+```
+![image](https://github.com/user-attachments/assets/af0c31e6-8c5d-4b52-b451-343dfb842f4a)
+
+<a name="mp3-gsm"></a>
+
+
+# MP3 a .gsm
+
+```
+https://convertio.co/es/mp3-gsm/
+```
+<a name="new-voice-elevenlabs"></a>
+
+#Para las nuevas voces .gsm utiliza esta herramienta, escribe texto y te da la voz para descargar es gratuita solo quizas debas loggearte:
+
+https://elevenlabs.io/app/speech-synthesis/text-to-speech
+
+<a name="what-does-the-script-do"></a>
 
 # 📋 ¿Qué hace el script?
 
