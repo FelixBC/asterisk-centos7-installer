@@ -92,20 +92,23 @@ asterisk -rx "dialplan reload"
 <a name="for-authenticity"></a>
 
 ## Para autenticidad, cambia los sonidos .gsm del menu, y canciones. OJOO!!:: DEBEN TENER EL MISMO NOMBRE QUE TENIAN, si te da algun error vuelve a chequear los nombres!
+  ```
   adios.gsm bonificacion.gsm ganaste.gsm lavadora.gsm perdiste.gsm
   airfryer.gsm celular.gsm gracias-2.gsm lo-sentimos.gsm reloj-inteligente.gsm
   audifonos.gsm diga-palabra.gsm gracias.gsm menu-principal.gsm smart-tv.gsm
   bienvenida.gsm elegir-musica.gsm introduzca-numero.gsm no-disp.gsm tablet.gsm
   bienvenida-juego.gsm elige-numero.gsm juego-bienvenida.gsm chance-extra.gsm timeout-es.gsm
   bocina-bluetooth.gsm ganador.gsm laptop.gsm numero-marcado.gsm tuvoz.gsm
+```
   
 ``` bash
 cd /var/lib/asterisk/sounds
 ```
 
 <a name="youtube-mp3"></a>
-
-bachata.gsm merengue.gsm rock.gsm 
+```
+bachata.gsm merengue.gsm rock.gsm
+```
 #Convertidor de Youtube a MP3, con corte permitido. (Preferiblemente 10 segundos para las canciones) 
 ```
 https://soundly.cc/es
