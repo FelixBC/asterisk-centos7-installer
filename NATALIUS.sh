@@ -8,7 +8,7 @@
 echo "***********************************************"
 echo "  HAZ EJECUTADO NATALIUS"
 echo "  Script de salvación creado por los ingenieros:"
-echo "  NATALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
+echo "  NATHALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
 echo "***********************************************"
 sleep 2
 
@@ -323,7 +323,7 @@ fi
 echo "***********************************************"
 echo "  HA FINALIZADO NATALIUS"
 echo "  Script de salvación creado por los ingenieros:"
-echo "  NATALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
+echo "  NATHALY BERROA, FÉLIX BLANCO, EDWIN ESPINAL"
 echo "***********************************************"
 echo "Pasos a seguir: sudo asterisk -rvvvvvvvv y probar"
 echo "☕ ¿Este script te salvó la vida? ¡Invítanos un café!"
