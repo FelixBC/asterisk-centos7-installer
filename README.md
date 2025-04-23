@@ -110,9 +110,9 @@ cd /var/lib/asterisk/sounds
 bachata.gsm merengue.gsm rock.gsm
 ```
 #Convertidor de Youtube a MP3, con corte permitido. (Preferiblemente 10 segundos para las canciones) 
-```
+
 https://soundly.cc/es
-```
+
 ![image](https://github.com/user-attachments/assets/af0c31e6-8c5d-4b52-b451-343dfb842f4a)
 
 <a name="mp3-gsm"></a>
@@ -120,14 +120,19 @@ https://soundly.cc/es
 
 # MP3 a .gsm
 
-```
 https://convertio.co/es/mp3-gsm/
-```
+
+![image](https://github.com/user-attachments/assets/2c5a5da8-34dc-48f1-b7e0-cbd17b485fda)
+
+
 <a name="new-voice-elevenlabs"></a>
 
 #Para las nuevas voces .gsm utiliza esta herramienta, escribe texto y te da la voz para descargar es gratuita solo quizas debas loggearte:
 
 https://elevenlabs.io/app/speech-synthesis/text-to-speech
+
+![image](https://github.com/user-attachments/assets/603c8f27-9596-4a41-ae4b-054efee6e0ef)
+
 
 <a name="what-does-the-script-do"></a>
 
