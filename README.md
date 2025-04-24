@@ -12,6 +12,7 @@
 - [Convertidor de youtube a MP3](#youtube-mp3)
 - [Convertidor MP3 GSM](#mp3-gsm)
 - [Texto a voces, para el menu gsm](#new-voice-elevenlabs)
+- [Texto a voces, para el menu gsm](#file-text)
 - [Qué hace el script](#what-does-the-script-do)
 - [Funcionalidades del script](#script-functionality)
   - [Instalación de dependencias](#dependency-installation)
@@ -137,7 +138,85 @@ https://elevenlabs.io/app/speech-synthesis/text-to-speech
 ![image](https://github.com/user-attachments/assets/603c8f27-9596-4a41-ae4b-054efee6e0ef)
 
 
+
+<a name="file-text"></a>
+
+
+# Texto por cada gsm. necesario para la conversion:
+```
+📁 Menú principal ([ivr])
+bienvenida.gsm
+Bienvenido al sistema de atención interactiva.
+
+menu-principal.gsm
+Presione 1 para música, 2 para buzón de voz, 3 para jugar, 4 para reconocimiento de voz, 5 para repetir opciones, o 6 para salir.
+
+ 🎶 Opción 1: Submenú de música ([musica])
+musica-opciones.gsm
+Presione 1 para rock, 2 para bachata, 3 para merengue, 4 para volver al menú principal.
+
+(Los archivos rock.gsm, bachata.gsm y merengue.gsm son clips de música, no requieren TTS.)
+
+🎮 Opción 3: Juego ([juego])
+juego-bienvenida.gsm
+Bienvenido al juego. Trate de adivinar el número secreto del 1 al 9.
+
+introduzca-numero.gsm
+Introduzca un número.
+
+nuevo-chance.gsm
+¡Felicidades! Se le ha concedido un nuevo intento.
+
+ganador.gsm
+¡Felicidades, ha ganado!
+
+lo-sentimos.gsm
+Lo sentimos, no ha ganado. Gracias por participar.
+
+🛍 Premios (uno por cada registro en la tabla premios)
+lavadora.gsm
+Lavadora
+
+smart-tv.gsm
+Smart TV
+
+air-fryer.gsm
+Air Fryer
+
+laptop.gsm
+Laptop
+
+celular.gsm
+Celular
+
+tablet.gsm
+Tablet
+
+audífonos.gsm
+Audífonos
+
+bocina-bluetooth.gsm
+Bocina Bluetooth
+
+reloj-inteligente.gsm
+Reloj Inteligente
+
+bonificación.gsm
+Bonificación
+
+🎤 Opción 4: Reconocimiento de voz ([reconocimiento])
+diga-palabra.gsm
+Diga una palabra o presione un número del 1 al 9.
+
+introduzca-numero.gsm
+(mismo que en el juego)
+
+👋 Opción 6: Salir
+adios.gsm
+Gracias por llamar. Hasta luego.
+```
 <a name="what-does-the-script-do"></a>
+
 
 # 📋 ¿Qué hace el script?
 
