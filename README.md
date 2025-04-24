@@ -87,7 +87,8 @@ asterisk -rx "dialplan reload"
 
 
 ## SI TODO TERMINO CONFIGURA EL SOFPHONE.  Y marca  📞 700.
-![image](https://github.com/user-attachments/assets/507a4b15-9f73-4a8f-a3c1-3db422b5a1ba)
+![Screenshot 2025-04-23 202024](https://github.com/user-attachments/assets/2060ea50-ef67-4ec7-b633-3970b1605885)
+
 
 
 <a name="for-authenticity"></a>
