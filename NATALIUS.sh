@@ -17,110 +17,203 @@ echo "👉 https://www.paypal.me/felixBlancoC"
 sleep 2
 
 # ---------------------------------------------------------------------
-# Paso 0: Preparar entorno de compilación y definir CLI de Asterisk
-echo "🔧 Instalando herramientas de compilación..."
-yum -q -y install gcc gcc-c++ make cpp autoconf automake \
-    libuuid-devel ncurses-devel libxml2-devel sqlite-devel openssl-devel
-ASTERISK_CMD="asterisk -rx"
+# Paso 1: Configurar repositorios (CentOS Vault, EPEL, RPM Fusion)
 # ---------------------------------------------------------------------
-# Paso 1: Instalar dependencias adicionales
-echo "🔧 Instalando paquetes necesarios..."
-yum -q -y install php-xml php php-mysql php-pear php-mbstring \
-    mariadb-devel mariadb-server mariadb \
-    lynx bison gmime-devel psmisc tftp-server httpd \
-    ncurses-devel libtermcap-devel sendmail sendmail-cf \
-    caching-nameserver sox newt-devel libxml2-devel libtiff-devel \
-    audiofile-devel gtk2-devel uuid-devel libtool subversion \
-    "kernel-devel-$(uname -r)" git epel-release wget vim \
-    cronie cronie-anacron php-process crontabs
-# ---------------------------------------------------------------------
-# Paso 2: Instalar Asterisk desde fuente y generar samples
-AST_SRC_DIR="/usr/src/asterisk-1.8.13.0"
-if ! command -v asterisk &>/dev/null; then
-  echo "⚠️  Asterisk no está instalado. Compilando e instalando..."
-  cd /usr/src || exit 1
-  wget -q https://repository.timesys.com/buildsources/a/asterisk/asterisk-1.8.13.0/asterisk-1.8.13.0.tar.gz
-  tar -xzf asterisk-1.8.13.0.tar.gz
-  cd asterisk-1.8.13.0 || exit 1
-  ./configure --libdir=/usr/lib64
-  make -s && make -s install && make -s samples
-  echo "  → Asterisk instalado y samples generados"
-else
-  echo "✅ Asterisk ya instalado, omitiendo compilación"
+echo "🔧 Configurando repositorios de CentOS y terceros..."
+# Usar CentOS Vault para repos antiguos de CentOS 7
+sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-*.repo
+sed -i 's|^#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
+
+# Instalar EPEL y RPM Fusion (free y non-free) si aún no están instalados
+if ! rpm -q epel-release &>/dev/null; then
+  /usr/bin/yum -q -y install epel-release
 fi
+RPMFUSION_FREE_RPM="https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm"
+RPMFUSION_NONFREE_RPM="https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm"
+if ! rpm -q rpmfusion-free-release &>/dev/null; then
+  /usr/bin/yum -q -y localinstall --nogpgcheck "${RPMFUSION_FREE_RPM}" "${RPMFUSION_NONFREE_RPM}"
+fi
+/usr/bin/yum -q -y clean all && /usr/bin/yum -q -y makecache
+echo "  → Repositorios configurados correctamente"
 
 # ---------------------------------------------------------------------
-# Paso 3: Instalar dependencias mínimas
+# Paso 2: Instalar herramientas de compilación y dependencias del sistema
 # ---------------------------------------------------------------------
 echo "🔧 Instalando paquetes necesarios..."
-yum -q -y install gcc gcc-c++ php-xml php php-mysql php-pear php-mbstring \
-    mariadb-devel mariadb-server mariadb sqlite-devel lynx bison gmime-devel \
-    psmisc tftp-server httpd make ncurses-devel libtermcap-devel sendmail \
-    sendmail-cf caching-nameserver sox newt-devel libxml2-devel libtiff-devel \
-    audiofile-devel gtk2-devel uuid-devel libtool libuuid-devel subversion \
-    "kernel-devel-$(uname -r)" git epel-release wget vim cronie cronie-anacron \
-    php-process crontabs
+/usr/bin/yum -q -y install gcc gcc-c++ make kernel-devel-$(uname -r) \
+    php php-xml php-mysql php-pear php-mbstring php-process \
+    mariadb mariadb-server mariadb-devel sqlite-devel lynx bison \
+    gmime-devel psmisc tftp-server httpd ncurses-devel libtermcap-devel \
+    sendmail sendmail-cf caching-nameserver sox newt-devel libxml2-devel \
+    libtiff-devel audiofile-devel gtk2-devel uuid-devel libtool libuuid-devel \
+    subversion git wget vim cronie cronie-anacron crontabs \
+    ffmpeg ffmpeg-devel python3 python3-pip
+echo "  → Paquetes del sistema instalados"
 
 # ---------------------------------------------------------------------
-# Paso 4: Instalar jansson si no existe
+# Paso 3: Instalar Jansson (si no existe)
 # ---------------------------------------------------------------------
-echo "🔧 Verificando jansson..."
+echo "🔧 Verificando biblioteca Jansson..."
 if ldconfig -p | grep -q libjansson.so; then
   echo "  → Jansson ya está instalada"
 else
   cd /usr/src || exit 1
-  [ -f jansson-2.7.tar.gz ] || wget -q http://www.digip.org/jansson/releases/jansson-2.7.tar.gz
-  tar -xzf jansson-2.7.tar.gz
-  cd jansson-2.7 || exit 1
+  JANSSON_TARBALL="jansson-2.7.tar.gz"
+  JANSSON_URL="http://www.digip.org/jansson/releases/${JANSSON_TARBALL}"
+  if [ ! -f "${JANSSON_TARBALL}" ]; then
+    echo "🔽 Descargando ${JANSSON_TARBALL}..."
+    if ! /usr/bin/wget -q "${JANSSON_URL}"; then
+      echo "❌ Error descargando ${JANSSON_TARBALL}"
+      exit 1
+    fi
+  fi
+  tar -xzf "${JANSSON_TARBALL}" && cd jansson-2.7 || { echo "❌ Error preparando Jansson"; exit 1; }
   ./configure --prefix=/usr
   make -s clean && make -s && make -s install
-  ldconfig
+  /sbin/ldconfig
   echo "  → Jansson instalada"
 fi
 
 # ---------------------------------------------------------------------
-# Paso 5: Desactivar SELinux y firewalld
+# Paso 4: Instalar Asterisk (compilar desde código fuente con soporte ODBC)
+# ---------------------------------------------------------------------
+AST_VERSION="1.8.13.0"
+AST_TARBALL="asterisk-${AST_VERSION}.tar.gz"
+AST_SRC_DIR="/usr/src/asterisk-${AST_VERSION}"
+AST_URL="https://repository.timesys.com/buildsources/a/asterisk/asterisk-${AST_VERSION}/${AST_TARBALL}"
+
+echo "🔧 Verificando instalación de Asterisk..."
+if ! command -v asterisk &>/dev/null; then
+  echo "⚠️  Asterisk no está instalado. Iniciando compilación e instalación..."
+  cd /usr/src || exit 1
+  if ! /usr/bin/wget -q "${AST_URL}"; then
+    echo "❌ No se pudo descargar ${AST_TARBALL}"
+    exit 1
+  fi
+  tar -xzf "${AST_TARBALL}" && cd "asterisk-${AST_VERSION}" || { echo "❌ Error extrayendo Asterisk"; exit 1; }
+  ./configure --libdir=/usr/lib64
+  menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
+  make -s && make -s install && make -s samples
+  echo "  → Asterisk ${AST_VERSION} instalado y samples generados"
+else
+  echo "✅ Asterisk ya está instalado, comprobando configuración..."
+  # Regenerar samples si faltan archivos base
+  if [ ! -f /etc/asterisk/asterisk.conf ]; then
+    if [ -d "${AST_SRC_DIR}" ]; then
+      echo "🛠  Archivos de muestra faltantes: regenerando samples..."
+      cd "${AST_SRC_DIR}" || exit 1
+      make -s samples
+      echo "  → Samples regenerados"
+    else
+      echo "⚠️  Fuente de Asterisk no encontrada; no se pueden regenerar samples"
+    fi
+  fi
+  # Recompilar Asterisk con módulos ODBC habilitados
+  echo "🔧 Recompilando Asterisk con soporte ODBC..."
+  if [ ! -d "${AST_SRC_DIR}" ]; then
+    # Descargar fuente si no existe para recompilar módulos
+    cd /usr/src || exit 1
+    echo "🔽 Descargando fuente de Asterisk ${AST_VERSION}..."
+    if ! /usr/bin/wget -q "${AST_URL}"; then
+      echo "❌ No se pudo descargar ${AST_TARBALL}"
+      exit 1
+    fi
+    tar -xzf "${AST_TARBALL}" || { echo "❌ Error extrayendo Asterisk"; exit 1; }
+  fi
+  cd "${AST_SRC_DIR}" || exit 1
+  make -s clean && make -s distclean
+  ./configure --libdir=/usr/lib64
+  menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
+  make -s && make -s install
+  echo "  → Asterisk recompilado con módulos ODBC"
+fi
+
+# ---------------------------------------------------------------------
+# Paso 5: Desplegar archivos de configuración de Asterisk y ODBC
+# ---------------------------------------------------------------------
+echo "🔧 Desplegando archivos de configuración desde GitHub..."
+CONF_BASE_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main"
+CONF_URL="${CONF_BASE_URL}/conf"
+
+# Archivos principales de configuración de Asterisk
+ASTERISK_CONF=(extensions.conf sip.conf voicemail.conf func_odbc.conf res_odbc.conf)
+for file in "${ASTERISK_CONF[@]}"; do
+  [ -f "/etc/asterisk/$file" ] && cp "/etc/asterisk/$file" "/etc/asterisk/${file}.bak_$(date +%s)"
+  if /usr/bin/wget -q -O "/etc/asterisk/$file" "${CONF_URL}/$file"; then
+    echo "  → /etc/asterisk/$file reemplazado"
+  else
+    echo "  ❗ ERROR descargando $file"
+  fi
+done
+
+# Archivos de configuración ODBC (unixODBC)
+ODBC_CONF=(odbc.ini odbcinst.ini)
+for file in "${ODBC_CONF[@]}"; do
+  [ -f "/etc/$file" ] && cp "/etc/$file" "/etc/${file}.bak_$(date +%s)"
+  if /usr/bin/wget -q -O "/etc/$file" "${CONF_URL}/$file"; then
+    echo "  → /etc/$file reemplazado"
+  else
+    echo "  ❗ ERROR descargando $file"
+  fi
+done
+
+# ---------------------------------------------------------------------
+# Paso 6: Desplegar scripts AGI personalizados
+# ---------------------------------------------------------------------
+echo "🔧 Desplegando AGI scripts..."
+AGI_DIR="/var/lib/asterisk/agi-bin"
+mkdir -p "${AGI_DIR}"
+AGI_SCRIPTS=(juego.py voz.py)
+for file in "${AGI_SCRIPTS[@]}"; do
+  [ -f "${AGI_DIR}/${file}" ] && cp "${AGI_DIR}/${file}" "${AGI_DIR}/${file}.bak_$(date +%s)"
+  if /usr/bin/wget -q -O "${AGI_DIR}/${file}" "${CONF_URL}/${file}"; then
+    chmod +x "${AGI_DIR}/${file}"
+    echo "  → ${AGI_DIR}/${file} reemplazado"
+  else
+    echo "  ❗ ERROR descargando $file"
+  fi
+done
+
+# ---------------------------------------------------------------------
+# Paso 7: Desactivar SELinux y firewalld
 # ---------------------------------------------------------------------
 echo "🔧 Deshabilitando SELinux y firewalld..."
-SEL_CFG=/etc/selinux/config
-cp "$SEL_CFG" "${SEL_CFG}.bak_$(date +%s)"
-sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' "$SEL_CFG" && echo "  → SELinux disabled (requiere reinicio)"
-if systemctl is-active --quiet firewalld; then
-  systemctl stop firewalld
-  systemctl disable firewalld
-  echo "  → firewalld desactivado"
+SEL_CFG="/etc/selinux/config"
+cp "${SEL_CFG}" "${SEL_CFG}.bak_$(date +%s)"
+if sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' "${SEL_CFG}"; then
+  echo "  → SELinux deshabilitado (requiere reinicio para aplicar)"
+else
+  echo "  ❗ No se pudo modificar SELinux (verifica permisos)"
+fi
+if /usr/bin/systemctl is-active --quiet firewalld; then
+  /usr/bin/systemctl stop firewalld
+  /usr/bin/systemctl disable firewalld
+  echo "  → firewalld detenido y deshabilitado"
 else
   echo "  → firewalld ya está desactivado"
 fi
 
 # ---------------------------------------------------------------------
-# Paso 6: Recompilar Asterisk con soporte ODBC
+# Paso 8: (Re)crear base de datos ivrdb y tabla premios limpia
 # ---------------------------------------------------------------------
-echo "🔧 Recompilando Asterisk con res_odbc y func_odbc..."
-cd /usr/src/asterisk-1.8.13.0 || exit 1
-make clean
-make distclean
-./configure --libdir=/usr/lib64
-menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
-make -s && make -s install
-echo "  → Asterisk recompilado con módulos ODBC"
+echo "🔧 (Re)creando base de datos 'ivrdb' y tabla 'premios'…"
+# Iniciar servicio MariaDB si está disponible
+if /usr/bin/systemctl list-unit-files | grep -q '^mariadb.service'; then
+  /usr/bin/systemctl enable mariadb --now &>/dev/null || /usr/bin/systemctl start mariadb
+else
+  echo "❌ Servicio MariaDB no encontrado. Por favor instala MariaDB e intenta de nuevo."
+  exit 1
+fi
 
-# ---------------------------------------------------------------------
-# Paso 7: (Re)crear ivrdb + tabla premios “limpia”
-# ---------------------------------------------------------------------
-echo "🔧 (Re)creando ivrdb y tabla premios…"
-systemctl start mariadb
-
-mysql -u root <<SQL
+# Crear base de datos y tablas requeridas
+/usr/bin/mysql -u root <<SQL
 DROP DATABASE IF EXISTS ivrdb;
 CREATE DATABASE ivrdb;
 USE ivrdb;
-
 CREATE TABLE premios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   premio VARCHAR(50) NOT NULL
 );
-
 CREATE TABLE llamadas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   extension VARCHAR(10),
@@ -130,13 +223,11 @@ CREATE TABLE llamadas (
   premio_ganado VARCHAR(50),
   tuvo_chance BOOLEAN
 );
-
 CREATE TABLE voice (
   id INT AUTO_INCREMENT PRIMARY KEY,
   fechahora DATETIME,
   texto VARCHAR(100)
 );
-
 INSERT INTO premios (premio) VALUES
   ('lavadora'),
   ('smart-tv'),
@@ -152,19 +243,17 @@ SQL
 
 echo "  → ivrdb y tabla premios poblada con nombres LOWERCASE–HYPHENATED"
 
-
 # ---------------------------------------------------------------------
-# Paso 8: (Re)Construir sonidos personalizados desde cero
+# Paso 9: (Re)Construir sonidos personalizados desde cero
 # ---------------------------------------------------------------------
-echo "🔄 Limpiando sonidos antiguos..."
-DEST="/var/lib/asterisk/sounds"
-rm -rf "${DEST}"/*.gsm     # borra TODOS los .gsm viejos
-mkdir -p "$DEST"
+echo "🔄 Reconstruyendo directorio de sonidos personalizados..."
+SOUND_DIR="/var/lib/asterisk/sounds"
+rm -rf "${SOUND_DIR}"/*.gsm 2>/dev/null   # borrar TODOS los .gsm viejos
+mkdir -p "${SOUND_DIR}"
 
-echo "🔧 Descargando sonidos personalizados..."
-GSM_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/gsm"
-
-# Lista completa de archivos a traer siempre fresco
+echo "🔧 Descargando sonidos personalizados (formatos .gsm)..."
+GSM_URL="${CONF_BASE_URL}/sonidos/gsm"
+# Lista completa de archivos de audio a descargar
 GSM_FILES=(
   adios.gsm bonificacion.gsm ganaste.gsm lavadora.gsm perdiste.gsm
   airfryer.gsm celular.gsm gracias-2.gsm lo-sentimos.gsm reloj-inteligente.gsm
@@ -174,99 +263,77 @@ GSM_FILES=(
   bocina-bluetooth.gsm ganador.gsm laptop.gsm numero-marcado.gsm tuvoz.gsm
   bachata.gsm merengue.gsm rock.gsm
 )
-
 for f in "${GSM_FILES[@]}"; do
-  if wget -q -O "${DEST}/${f}" "${GSM_URL}/${f}"; then
+  if /usr/bin/wget -q -O "${SOUND_DIR}/${f}" "${GSM_URL}/${f}"; then
     echo "  ✅ ${f} descargado"
   else
     echo "  ❗ ERROR descargando ${f}"
   fi
 done
 
+# ---------------------------------------------------------------------
+# Paso 10: Instalar dependencias Python (MySQL Connector y SpeechRecognition)
+# ---------------------------------------------------------------------
+echo "🔧 Verificando e instalando dependencias de Python..."
+# Asegurarse de tener pip3 actualizado
+if ! command -v pip3 &>/dev/null; then
+  /usr/bin/yum -q -y install python3-pip
+fi
+/usr/bin/pip3 install --quiet --upgrade pip
+echo "  → pip actualizado"
 
-# ---------------------------------------------------------------------
-# Paso 9: Instalar conector MySQL para Python
-# ---------------------------------------------------------------------
+# MySQL Connector (Python)
 echo "🔧 Verificando mysql-connector-python..."
 if ! python3 -c "import mysql.connector" &>/dev/null; then
-  yum -q -y install python3-pip
-  pip3 install --quiet mysql-connector-python
-  echo "  → Conector instalado"
+  /usr/bin/pip3 install --quiet mysql-connector-python==8.0.28
+  echo "  → Conector MySQL-Python instalado"
 else
-  echo "  → Conector ya existente"
+  echo "  → Conector MySQL-Python ya existente"
+fi
+
+# SpeechRecognition (Python)
+echo "🔧 Verificando SpeechRecognition..."
+if ! python3 -c "import speech_recognition" &>/dev/null; then
+  /usr/bin/pip3 install --quiet SpeechRecognition
+  echo "  → SpeechRecognition instalado"
+else
+  echo "  → SpeechRecognition ya existente"
 fi
 
 # ---------------------------------------------------------------------
-# Paso 10: Instalar drivers ODBC y recargar módulo res_odbc
+# Paso 11: Instalar drivers ODBC de UnixODBC y MySQL, luego probar DSN
 # ---------------------------------------------------------------------
-echo "🔧 Instalando unixODBC y driver MySQL‑ODBC..."
-yum -q -y install unixODBC unixODBC-devel mysql-connector-odbc
-
-echo "🔧 Probando DSN 'asterisk' con isql (no interactivo)..."
-if echo "quit" | isql -v asterisk root "" >/dev/null 2>&1; then
+echo "🔧 Instalando drivers ODBC (unixODBC y MySQL ODBC)..."
+/usr/bin/yum -q -y install unixODBC unixODBC-devel mysql-connector-odbc
+echo "🔧 Probando DSN 'asterisk' con isql..."
+if echo "quit" | /usr/bin/isql -v asterisk root "" &>/dev/null; then
   echo "  → DSN 'asterisk' OK"
 else
-  echo "  ❗ Prueba ODBC fallida"
+  echo "  ❗ Prueba de conexión ODBC fallida (DSN 'asterisk')"
 fi
 
-echo "🔧 Recargando módulo res_odbc en Asterisk..."
-if asterisk -rx "module reload res_odbc.so" &>/dev/null; then
-  echo "  → res_odbc recargado"
+# ---------------------------------------------------------------------
+# Paso 12: Iniciar Asterisk y recargar configuración (incluyendo ODBC)
+# ---------------------------------------------------------------------
+echo "🔧 Iniciando servicio de Asterisk..."
+ASTERISK_CMD="$(command -v asterisk || echo "/usr/sbin/asterisk")"
+if /usr/bin/systemctl list-unit-files | grep -q '^asterisk.service'; then
+  /usr/bin/systemctl start asterisk 2>/dev/null || echo "❗ No se pudo iniciar Asterisk con systemd."
 else
-  echo "  ❗ No se pudo recargar res_odbc"
+  # Si no hay servicio systemd, intentar iniciar Asterisk directamente
+  if ! $ASTERISK_CMD &>/dev/null; then
+    echo "❗ No se pudo iniciar Asterisk. Inícialo manualmente para continuar."
+  fi
 fi
 
-# ---------------------------------------------------------------------
-# Paso 11: Crear insert_data.php en /var/www/html/
-# ---------------------------------------------------------------------
-echo "🔧 Creando /var/www/html/insert_data.php..."
-cat > /var/www/html/insert_data.php <<'EOF'
-<?php
-// insert_data.php
-date_default_timezone_set('America/Santo_Domingo');
-// argv: [1]=ext, [2]=num, [3]=Gano/Perdio, [4]=premio o NULL, [5]=Si/No
-$extension       = $argv[1];
-$numero_generado = $argv[2];
-$resultado       = $argv[3];
-$premio          = $argv[4];
-$tuvo_chance     = $argv[5];
-$conn = new mysqli("localhost","root","","ivrdb");
-if ($conn->connect_error) {
-    file_put_contents("/tmp/error_log_php.txt","Conexión fallida: ".$conn->connect_error."\n",FILE_APPEND);
-    exit(1);
-}
-$fecha_hora = date("Y-m-d H:i:s");
-$gano       = ($resultado==="Gano") ? 1 : 0;
-$premio     = ($premio==="NULL") ? null : $premio;
-$chance     = ($tuvo_chance==="Si")   ? 1 : 0;
-$stmt = $conn->prepare(
-    "INSERT INTO llamadas
-     (extension, fecha_hora, numero_generado, gano, premio_ganado, tuvo_chance)
-     VALUES (?, ?, ?, ?, ?, ?)"
-);
-$stmt->bind_param("ssiisi",$extension,$fecha_hora,$numero_generado,$gano,$premio,$chance);
-if (!$stmt->execute()) {
-    file_put_contents("/tmp/error_log_php.txt","Error al insertar: ".$stmt->error."\n",FILE_APPEND);
-}
-$stmt->close();
-$conn->close();
-?>
-EOF
-chmod 644 /var/www/html/insert_data.php
-echo "  → insert_data.php creado y permisos establecidos"
+# Recargar configuración de Asterisk
+$ASTERISK_CMD -rx "reload" &>/dev/null
 
 # ---------------------------------------------------------------------
-# Paso 12: Iniciar y recargar Asterisk
-# ---------------------------------------------------------------------
-echo "🔧 Iniciando y recargando Asterisk..."
-systemctl start asterisk 2>/dev/null || asterisk start
-asterisk -rx "reload" &>/dev/null
-
-# ---------------------------------------------------------------------
-# Paso 13: Verificar y cargar chan_sip.so en Asterisk
+# Paso 13: Verificar y cargar módulo chan_sip en Asterisk
 # ---------------------------------------------------------------------
 echo "🔧 Verificando módulo chan_sip..."
-# 1) Comprobar en el CLI
+# 1) Comprobar conexión al CLI de Asterisk
 OUTPUT=$($ASTERISK_CMD -rx "module show like sip" 2>&1)
 if echo "$OUTPUT" | grep -qi "Unable to connect"; then
   echo "❌ No se pudo conectar al CLI de Asterisk."
@@ -274,18 +341,23 @@ if echo "$OUTPUT" | grep -qi "Unable to connect"; then
   exit 1
 fi
 
-# 2) Si ya está cargado, salimos
+# 2) Si chan_sip ya está cargado, finalizar
 if echo "$OUTPUT" | grep -qF "chan_sip.so"; then
   echo "✅ chan_sip.so ya está cargado."
 else
-  # 3) Verificar que el archivo exista
-  MODULE_PATH="/usr/lib/asterisk/modules/chan_sip.so"
-  if [ ! -f "$MODULE_PATH" ]; then
-    echo "⚠️  No existe el módulo en: $MODULE_PATH"
+  # 3) Verificar que el archivo de módulo exista (en /usr/lib64 o /usr/lib)
+  MODULE_PATH=""
+  if [ -f "/usr/lib64/asterisk/modules/chan_sip.so" ]; then
+    MODULE_PATH="/usr/lib64/asterisk/modules/chan_sip.so"
+  elif [ -f "/usr/lib/asterisk/modules/chan_sip.so" ]; then
+    MODULE_PATH="/usr/lib/asterisk/modules/chan_sip.so"
+  fi
+  if [ -z "$MODULE_PATH" ]; then
+    echo "⚠️  No existe el módulo chan_sip.so en las rutas estándar."
     exit 1
   fi
 
-  # 4) Intentar cargarlo
+  # 4) Intentar cargar el módulo chan_sip
   echo "🔄 Cargando chan_sip.so..."
   LOAD_OUT=$($ASTERISK_CMD -rx "module load chan_sip.so" 2>&1)
   if echo "$LOAD_OUT" | grep -qi "Loaded"; then
@@ -293,74 +365,43 @@ else
   else
     echo "❌ Falló carga chan_sip.so:"
     echo "$LOAD_OUT"
-    echo "🔄 Probando sin extensión .so..."
-    LOAD2=$($ASTERISK_CMD -rx "module load chan_sip" 2>&1)
-    if echo "$LOAD2" | grep -qi "Loaded"; then
-      echo "✅ chan_sip cargado (sin .so)."
+    echo "🔄 Probando cargar sin extensión .so..."
+    LOAD_OUT2=$($ASTERISK_CMD -rx "module load chan_sip" 2>&1)
+    if echo "$LOAD_OUT2" | grep -qi "Loaded"; then
+      echo "✅ chan_sip cargado correctamente (sin .so)."
     else
       echo "❌ Segundo intento falló:"
-      echo "$LOAD2"
+      echo "$LOAD_OUT2"
       exit 1
     fi
   fi
 fi
 
-
 # ---------------------------------------------------------------------
-# Paso 14: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
-# ---------------------------------------------------------------------
-
-echo "🔧 Instalando dependencias de Python y multimedia..."
-pip3 install --upgrade pip
-pip3 install speechrecognition
-pip3 install mysql-connector-python==8.0.28
-yum install -y epel-release
-yum localinstall -y --nogpgcheck \
-  https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm \
-  https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
-yum clean all && yum makecache
-yum install -y ffmpeg ffmpeg-devel
-echo "  → SpeechRecognition, conector MySQL y FFmpeg instalados"
-# ---------------------------------------------------------------------
-# Paso 15: Descargar + reproducir jingle de despedida y borrarlo
+# Paso 14: Descargar y reproducir jingle de despedida, luego limpiarlo
 # ---------------------------------------------------------------------
 echo "🔊 Descargando jingle de despedida..."
 TMP_JINGLE="/tmp/adios.m4a"
-if wget -q -O "${TMP_JINGLE}" \
-    "https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/sonidos/adios.m4a"; then
+if /usr/bin/wget -q -O "${TMP_JINGLE}" "${CONF_BASE_URL}/sonidos/adios.m4a"; then
   echo "  → ${TMP_JINGLE} descargado"
 else
-  echo "  ❗ No se pudo descargar el jingle, omitiendo reproducción."
+  echo "  ❗ No se pudo descargar el jingle, se omitirá la reproducción."
   TMP_JINGLE=""
 fi
 
 if [ -n "${TMP_JINGLE}" ]; then
-  # Sólo si no existe ffplay instalamos repositorio + paquete
-  if ! command -v ffplay &>/dev/null; then
-    echo "📦 Habilitando repositorios EPEL + RPM Fusion..."
-    yum install -y epel-release
-    yum localinstall -y --nogpgcheck \
-      https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm \
-      https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
-    yum clean all && yum makecache
-    echo "📦 Instalando ffmpeg (incluye ffplay)..."
-    yum install -y ffmpeg ffmpeg-devel
-  fi
-
   if command -v ffplay &>/dev/null; then
     echo "▶️  Reproduciendo jingle..."
-    ffplay -nodisp -autoexit "${TMP_JINGLE}" >/dev/null 2>&1 || \
-      echo "  ❗ Falló la reproducción con ffplay"
+    ffplay -nodisp -autoexit "${TMP_JINGLE}" &>/dev/null || echo "  ❗ Falló la reproducción con ffplay"
   else
-    echo "⚠️  Aún no se encontró ffplay, omitiendo reproducción"
+    echo "⚠️  ffplay no encontrado, omitiendo reproducción"
   fi
-
   echo "🗑  Borrando jingle..."
   rm -f "${TMP_JINGLE}"
 fi
 
 # ---------------------------------------------------------------------
-# Fin
+# Fin del script
 # ---------------------------------------------------------------------
 echo "***********************************************"
 echo "  HA FINALIZADO NATALIUS"
