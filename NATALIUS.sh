@@ -17,11 +17,27 @@ echo "👉 https://www.paypal.me/felixBlancoC"
 sleep 2
 
 # ---------------------------------------------------------------------
-# Paso 0: Asegurarse de que Asterisk está instalado y samples disponibles
+# Paso 0: Preparar entorno de compilación y definir CLI de Asterisk
+echo "🔧 Instalando herramientas de compilación..."
+yum -q -y install gcc gcc-c++ make cpp autoconf automake \
+    libuuid-devel ncurses-devel libxml2-devel sqlite-devel openssl-devel
+ASTERISK_CMD="asterisk -rx"
 # ---------------------------------------------------------------------
+# Paso 1: Instalar dependencias adicionales
+echo "🔧 Instalando paquetes necesarios..."
+yum -q -y install php-xml php php-mysql php-pear php-mbstring \
+    mariadb-devel mariadb-server mariadb \
+    lynx bison gmime-devel psmisc tftp-server httpd \
+    ncurses-devel libtermcap-devel sendmail sendmail-cf \
+    caching-nameserver sox newt-devel libxml2-devel libtiff-devel \
+    audiofile-devel gtk2-devel uuid-devel libtool subversion \
+    "kernel-devel-$(uname -r)" git epel-release wget vim \
+    cronie cronie-anacron php-process crontabs
+# ---------------------------------------------------------------------
+# Paso 2: Instalar Asterisk desde fuente y generar samples
 AST_SRC_DIR="/usr/src/asterisk-1.8.13.0"
 if ! command -v asterisk &>/dev/null; then
-  echo "⚠️  Asterisk no está instalado. Iniciando instalación y samples..."
+  echo "⚠️  Asterisk no está instalado. Compilando e instalando..."
   cd /usr/src || exit 1
   wget -q https://repository.timesys.com/buildsources/a/asterisk/asterisk-1.8.13.0/asterisk-1.8.13.0.tar.gz
   tar -xzf asterisk-1.8.13.0.tar.gz
@@ -30,64 +46,8 @@ if ! command -v asterisk &>/dev/null; then
   make -s && make -s install && make -s samples
   echo "  → Asterisk instalado y samples generados"
 else
-  echo "✅ Asterisk ya instalado, comprobando samples..."
-  # Regenerar samples si faltan archivos base
-  if [ ! -f /etc/asterisk/asterisk.conf ] && [ -d "$AST_SRC_DIR" ]; then
-    echo "🛠  Archivos de muestra faltantes: regenerando samples..."
-    cd "$AST_SRC_DIR" || exit 1
-    make samples
-    echo "  → Samples regenerados"
-  fi
+  echo "✅ Asterisk ya instalado, omitiendo compilación"
 fi
-
-# ---------------------------------------------------------------------
-# Paso 1: Descargar y desplegar configs de Asterisk y ODBC
-# ---------------------------------------------------------------------
-echo "🔧 Desplegando archivos de configuración desde GitHub..."
-CONF_URL="https://raw.githubusercontent.com/FelixBC/asterisk-centos7-installer/main/conf"
-
-# Asterisk core configs
-ASTERISK_CONF=(extensions.conf sip.conf voicemail.conf func_odbc.conf res_odbc.conf)
-for file in "${ASTERISK_CONF[@]}"; do
-  [ -f "/etc/asterisk/$file" ] && cp "/etc/asterisk/$file" "/etc/asterisk/${file}.bak_$(date +%s)"
-  if wget -q -O "/etc/asterisk/$file" "$CONF_URL/$file"; then
-    echo "  → /etc/asterisk/$file reemplazado"
-  else
-    echo "  ❗ ERROR descargando $file"
-  fi
-done
-
-# ODBC configs
-ODBC_CONF=(odbc.ini odbcinst.ini)
-for file in "${ODBC_CONF[@]}"; do
-  [ -f "/etc/$file" ] && cp "/etc/$file" "/etc/${file}.bak_$(date +%s)"
-  if wget -q -O "/etc/$file" "$CONF_URL/$file"; then
-    echo "  → /etc/$file reemplazado"
-  else
-    echo "  ❗ ERROR descargando $file"
-  fi
-done
-
-# AGI scripts
-echo "🔧 Desplegando AGI scripts..."
-mkdir -p /var/lib/asterisk/agi-bin
-AGI_SCRIPTS=(juego.py voz.py)
-for file in "${AGI_SCRIPTS[@]}"; do
-  [ -f "/var/lib/asterisk/agi-bin/$file" ] && cp "/var/lib/asterisk/agi-bin/$file" "/var/lib/asterisk/agi-bin/${file}.bak_$(date +%s)"
-  if wget -q -O "/var/lib/asterisk/agi-bin/$file" "$CONF_URL/$file"; then
-    chmod +x "/var/lib/asterisk/agi-bin/$file"
-    echo "  → /var/lib/asterisk/agi-bin/$file reemplazado"
-  else
-    echo "  ❗ ERROR descargando $file"
-  fi
-done
-
-# ---------------------------------------------------------------------
-# Paso 2: Configurar repositorios de CentOS
-# ---------------------------------------------------------------------
-echo "🔧 Configurando repositorios de CentOS..."
-sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-*.repo
-sed -i 's|^#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
 
 # ---------------------------------------------------------------------
 # Paso 3: Instalar dependencias mínimas
