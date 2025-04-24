@@ -256,16 +256,54 @@ else
   echo "  ❗ No se pudo recargar res_odbc"
 fi
 
+# ---------------------------------------------------------------------
+# Paso 11: Crear insert_data.php en /var/www/html/
+# ---------------------------------------------------------------------
+echo "🔧 Creando /var/www/html/insert_data.php..."
+cat > /var/www/html/insert_data.php <<'EOF'
+<?php
+// insert_data.php
+date_default_timezone_set('America/Santo_Domingo');
+// argv: [1]=ext, [2]=num, [3]=Gano/Perdio, [4]=premio o NULL, [5]=Si/No
+$extension       = $argv[1];
+$numero_generado = $argv[2];
+$resultado       = $argv[3];
+$premio          = $argv[4];
+$tuvo_chance     = $argv[5];
+$conn = new mysqli("localhost","root","","ivrdb");
+if ($conn->connect_error) {
+    file_put_contents("/tmp/error_log_php.txt","Conexión fallida: ".$conn->connect_error."\n",FILE_APPEND);
+    exit(1);
+}
+$fecha_hora = date("Y-m-d H:i:s");
+$gano       = ($resultado==="Gano") ? 1 : 0;
+$premio     = ($premio==="NULL") ? null : $premio;
+$chance     = ($tuvo_chance==="Si")   ? 1 : 0;
+$stmt = $conn->prepare(
+    "INSERT INTO llamadas
+     (extension, fecha_hora, numero_generado, gano, premio_ganado, tuvo_chance)
+     VALUES (?, ?, ?, ?, ?, ?)"
+);
+$stmt->bind_param("ssiisi",$extension,$fecha_hora,$numero_generado,$gano,$premio,$chance);
+if (!$stmt->execute()) {
+    file_put_contents("/tmp/error_log_php.txt","Error al insertar: ".$stmt->error."\n",FILE_APPEND);
+}
+$stmt->close();
+$conn->close();
+?>
+EOF
+chmod 644 /var/www/html/insert_data.php
+echo "  → insert_data.php creado y permisos establecidos"
 
 # ---------------------------------------------------------------------
-# Paso 11: Iniciar y recargar Asterisk
+# Paso 12: Iniciar y recargar Asterisk
 # ---------------------------------------------------------------------
 echo "🔧 Iniciando y recargando Asterisk..."
 systemctl start asterisk 2>/dev/null || asterisk start
 asterisk -rx "reload" &>/dev/null
 
 # ---------------------------------------------------------------------
-# Paso 12: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
+# Paso 13: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
 # ---------------------------------------------------------------------
 
 echo "🔧 Instalando dependencias de Python y multimedia..."
@@ -280,7 +318,7 @@ yum clean all && yum makecache
 yum install -y ffmpeg ffmpeg-devel
 echo "  → SpeechRecognition, conector MySQL y FFmpeg instalados"
 # ---------------------------------------------------------------------
-# Paso 13: Descargar + reproducir jingle de despedida y borrarlo
+# Paso 14: Descargar + reproducir jingle de despedida y borrarlo
 # ---------------------------------------------------------------------
 echo "🔊 Descargando jingle de despedida..."
 TMP_JINGLE="/tmp/adios.m4a"
