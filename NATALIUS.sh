@@ -303,7 +303,51 @@ systemctl start asterisk 2>/dev/null || asterisk start
 asterisk -rx "reload" &>/dev/null
 
 # ---------------------------------------------------------------------
-# Paso 13: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
+# Paso 13: Verificar y cargar chan_sip.so en Asterisk
+# ---------------------------------------------------------------------
+echo "🔧 Verificando módulo chan_sip..."
+# 1) Comprobar en el CLI
+OUTPUT=$($ASTERISK_CMD -rx "module show like sip" 2>&1)
+if echo "$OUTPUT" | grep -qi "Unable to connect"; then
+  echo "❌ No se pudo conectar al CLI de Asterisk."
+  echo "   Revisa permisos del socket (/var/run/asterisk/asterisk.ctl)."
+  exit 1
+fi
+
+# 2) Si ya está cargado, salimos
+if echo "$OUTPUT" | grep -qF "chan_sip.so"; then
+  echo "✅ chan_sip.so ya está cargado."
+else
+  # 3) Verificar que el archivo exista
+  MODULE_PATH="/usr/lib/asterisk/modules/chan_sip.so"
+  if [ ! -f "$MODULE_PATH" ]; then
+    echo "⚠️  No existe el módulo en: $MODULE_PATH"
+    exit 1
+  fi
+
+  # 4) Intentar cargarlo
+  echo "🔄 Cargando chan_sip.so..."
+  LOAD_OUT=$($ASTERISK_CMD -rx "module load chan_sip.so" 2>&1)
+  if echo "$LOAD_OUT" | grep -qi "Loaded"; then
+    echo "✅ chan_sip.so cargado correctamente."
+  else
+    echo "❌ Falló carga chan_sip.so:"
+    echo "$LOAD_OUT"
+    echo "🔄 Probando sin extensión .so..."
+    LOAD2=$($ASTERISK_CMD -rx "module load chan_sip" 2>&1)
+    if echo "$LOAD2" | grep -qi "Loaded"; then
+      echo "✅ chan_sip cargado (sin .so)."
+    else
+      echo "❌ Segundo intento falló:"
+      echo "$LOAD2"
+      exit 1
+    fi
+  fi
+fi
+
+
+# ---------------------------------------------------------------------
+# Paso 14: Instalar SpeechRecognition, MySQL‑Connector y FFmpeg
 # ---------------------------------------------------------------------
 
 echo "🔧 Instalando dependencias de Python y multimedia..."
@@ -318,7 +362,7 @@ yum clean all && yum makecache
 yum install -y ffmpeg ffmpeg-devel
 echo "  → SpeechRecognition, conector MySQL y FFmpeg instalados"
 # ---------------------------------------------------------------------
-# Paso 14: Descargar + reproducir jingle de despedida y borrarlo
+# Paso 15: Descargar + reproducir jingle de despedida y borrarlo
 # ---------------------------------------------------------------------
 echo "🔊 Descargando jingle de despedida..."
 TMP_JINGLE="/tmp/adios.m4a"
