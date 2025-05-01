@@ -75,58 +75,39 @@ else
 fi
 
 # ---------------------------------------------------------------------
-# Paso 4: Instalar Asterisk (compilar desde código fuente con soporte ODBC)
+# Paso 4: Configurar y habilitar módulos ODBC con menuselect
 # ---------------------------------------------------------------------
-AST_VERSION="1.8.13.0"
-AST_TARBALL="asterisk-${AST_VERSION}.tar.gz"
-AST_SRC_DIR="/usr/src/asterisk-${AST_VERSION}"
-AST_URL="https://repository.timesys.com/buildsources/a/asterisk/asterisk-${AST_VERSION}/${AST_TARBALL}"
+echo "🔧 Paso 4: Configurando módulos ODBC (res_odbc & func_odbc)..."
 
-echo "🔧 Verificando instalación de Asterisk..."
-if ! command -v asterisk &>/dev/null; then
-  echo "⚠️  Asterisk no está instalado. Iniciando compilación e instalación..."
-  cd /usr/src || exit 1
-  if ! /usr/bin/wget -q "${AST_URL}"; then
-    echo "❌ No se pudo descargar ${AST_TARBALL}"
-    exit 1
-  fi
-  tar -xzf "${AST_TARBALL}" && cd "asterisk-${AST_VERSION}" || { echo "❌ Error extrayendo Asterisk"; exit 1; }
-  ./configure --libdir=/usr/lib64
-  menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
-  make -s && make -s install && make -s samples
-  echo "  → Asterisk ${AST_VERSION} instalado y samples generados"
+# 4.1 Instalar libnewt si falta (menuselect depende de newt)
+if ! rpm -q newt-devel &>/dev/null; then
+  echo "  → newt-devel no instalado. Instalando..."
+  yum install -y newt-devel || { echo "❌ Error instalando newt-devel"; exit 1; }
 else
-  echo "✅ Asterisk ya está instalado, comprobando configuración..."
-  # Regenerar samples si faltan archivos base
-  if [ ! -f /etc/asterisk/asterisk.conf ]; then
-    if [ -d "${AST_SRC_DIR}" ]; then
-      echo "🛠  Archivos de muestra faltantes: regenerando samples..."
-      cd "${AST_SRC_DIR}" || exit 1
-      make -s samples
-      echo "  → Samples regenerados"
-    else
-      echo "⚠️  Fuente de Asterisk no encontrada; no se pueden regenerar samples"
-    fi
-  fi
-  # Recompilar Asterisk con módulos ODBC habilitados
-  echo "🔧 Recompilando Asterisk con soporte ODBC..."
-  if [ ! -d "${AST_SRC_DIR}" ]; then
-    # Descargar fuente si no existe para recompilar módulos
-    cd /usr/src || exit 1
-    echo "🔽 Descargando fuente de Asterisk ${AST_VERSION}..."
-    if ! /usr/bin/wget -q "${AST_URL}"; then
-      echo "❌ No se pudo descargar ${AST_TARBALL}"
-      exit 1
-    fi
-    tar -xzf "${AST_TARBALL}" || { echo "❌ Error extrayendo Asterisk"; exit 1; }
-  fi
-  cd "${AST_SRC_DIR}" || exit 1
-  make -s clean && make -s distclean
-  ./configure --libdir=/usr/lib64
-  menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts
-  make -s && make -s install
-  echo "  → Asterisk recompilado con módulos ODBC"
+  echo "  → newt-devel ya presente"
 fi
+
+# 4.2 Entrar al directorio fuente y limpiar compilaciones previas
+cd /usr/src/asterisk-1.8.13.0 || { echo "❌ No encontré /usr/src/asterisk-1.8.13.0"; exit 1; }
+make distclean &>/dev/null
+
+# 4.3 (Re)configurar Asterisk
+echo "  → Ejecutando ./configure"
+./configure --libdir=/usr/lib64 || { echo "❌ Error en ./configure"; exit 1; }
+
+# 4.4 Verificar menuselect
+if [ ! -x menuselect/menuselect ]; then
+  echo "⚠️   menuselect no encontrado o sin permisos de ejecución."
+  echo "     Revisa que newt-devel esté instalado y vuelve a configurar."
+  exit 1
+fi
+
+# 4.5 Habilitar ODBC y salir con error si algo falla
+echo "  → Habilitando res_odbc y func_odbc..."
+menuselect/menuselect --enable res_odbc --enable func_odbc menuselect.makeopts \
+  || { echo "❌ Error al ejecutar menuselect"; exit 1; }
+
+echo "✅ Paso 4 completado: ODBC marcado para compilar."
 
 # ---------------------------------------------------------------------
 # Paso 5: Desplegar archivos de configuración de Asterisk y ODBC
