@@ -37,18 +37,48 @@ fi
 echo "  → Repositorios configurados correctamente"
 
 # ---------------------------------------------------------------------
-# Paso 2: Instalar herramientas de compilación y dependencias del sistema
+# Paso 2 (mejorado v2): Configurar repositorios de CentOS y terceros
 # ---------------------------------------------------------------------
-echo "🔧 Instalando paquetes necesarios..."
-/usr/bin/yum -q -y install gcc gcc-c++ make kernel-devel-$(uname -r) \
-    php php-xml php-mysql php-pear php-mbstring php-process \
-    mariadb mariadb-server mariadb-devel sqlite-devel lynx bison \
-    gmime-devel psmisc tftp-server httpd ncurses-devel libtermcap-devel \
-    sendmail sendmail-cf caching-nameserver sox newt-devel libxml2-devel \
-    libtiff-devel audiofile-devel gtk2-devel uuid-devel libtool libuuid-devel \
-    subversion git wget vim cronie cronie-anacron crontabs \
-    ffmpeg ffmpeg-devel python3 python3-pip
-echo "  → Paquetes del sistema instalados"
+echo "🔧 Paso 2: Configurando repositorios de CentOS y terceros..."
+
+# 2.1 Detener, deshabilitar y enmascarar PackageKit
+if systemctl is-active --quiet packagekit; then
+  echo "  → Deteniendo PackageKit..."
+  systemctl stop packagekit
+fi
+echo "  → Deshabilitando y enmascarando PackageKit para futuros arranques..."
+systemctl disable packagekit
+systemctl mask packagekit
+
+# 2.2 Esperar a que yum libere su lock
+MAX_TRIES=30
+count=0
+while fuser /var/run/yum.pid &>/dev/null; do
+  ((count++))
+  echo -n "  ⚠️  Esperando lock de yum (intento $count/$MAX_TRIES)… "
+  sleep 5
+  if [ $count -ge $MAX_TRIES ]; then
+    echo
+    echo "❌ Timeout esperando el lock de yum. Abortando."
+    exit 1
+  fi
+done
+echo "✅ Lock de yum liberado."
+
+# 2.3 Importar clave GPG de EPEL (antes de instalar el RPM)
+EPEL_KEY_URL="https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
+if ! rpm -q gpg-pubkey | grep -q f4a80eb5; then
+  echo "  → Importando clave GPG de EPEL desde $EPEL_KEY_URL..."
+  rpm --import "$EPEL_KEY_URL" || { echo "❌ Falló importar clave GPG"; exit 1; }
+else
+  echo "  → Clave GPG de EPEL ya presente en el sistema"
+fi
+
+# 2.4 Instalar epel-release
+echo "  → Instalando epel-release..."
+yum install -y epel-release || { echo "❌ Error instalando epel-release"; exit 1; }
+
+echo "✅ Paso 2 completado: repositorios EPEL listos y confiables."
 
 # ---------------------------------------------------------------------
 # Paso 3: Instalar Jansson (si no existe)
